@@ -43,7 +43,7 @@ class Scene3D {
 
     // Create the main camera
     this.createCamera('main', {
-      fov: 35,
+      fov: 90,
       aspect: 1,
       near: 0.1,
       far: 100
@@ -96,6 +96,7 @@ class Scene3D {
 
     // Move the camera back so we can view the scene
     camera.position.set(0, 0, 10)
+    camera.lookAt(0, 0, 0)
     // camera.tick = (delta) => {};
 
     // Push camera to cameras object

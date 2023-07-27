@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
+  <div class="container-fluid about">
     <h1>This is an about page</h1>
   </div>
 </template>
@@ -8,7 +8,9 @@
 @media (min-width: 1024px) {
   .about {
     min-height: 100vh;
+    padding: 2rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
   }
 }

@@ -10,12 +10,12 @@ export default function createTerrain(props: { color: ColorRepresentation }) {
   const loader = new TextureLoader()
   const height = loader.load('../assets/textures/heightmap.jpg')
 
-  const geometry = new PlaneGeometry(15, 15, 64, 64)
+  const geometry = new PlaneGeometry(150, 150, 64, 64)
   const material = new MeshPhongMaterial({
     color: props.color,
     flatShading: true,
     displacementMap: height,
-    displacementScale: 2
+    displacementScale: 8
   })
 
   const terrain = new Mesh(geometry, material)

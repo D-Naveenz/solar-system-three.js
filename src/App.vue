@@ -30,7 +30,7 @@ import { RouterLink, RouterView } from 'vue-router'
           </li>
         </ul>
         <form class="d-flex">
-          <button class="btn btn-outline-success" type="submit">Search</button>
+          <button class="btn btn-outline-success" type="submit">Change Theme</button>
         </form>
       </div>
     </div>
