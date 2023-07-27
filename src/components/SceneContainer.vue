@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import createTerrain from './game/components/terrain';
-import { Scene3D } from './game/scene3d';
+import { World } from './game/world';
 </script>
 
 <template>
@@ -17,13 +17,13 @@ export default {
       const container = document.querySelector('#scene-container')
       if (container) {
         // Create an instance of 3D scene
-        const scene3d = new Scene3D()
-        scene3d.setContainer(container)
+        const world = new World()
+        world.setContainer(container)
         // Start the animation loop
-        scene3d.startAnimationLoop()
+        world.startAnimationLoop()
 
         let terrain = createTerrain({ color: "green" })
-        scene3d.add(terrain)
+        world.add(terrain)
       }
     }
   },
@@ -44,3 +44,4 @@ export default {
   z-index: -10;
 }
 </style>
+./game/world

@@ -1,4 +1,5 @@
 import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from "three"
+import type { UpdatableObject } from "../types"
 
 const clock = new Clock()
 
@@ -6,7 +7,7 @@ class AnimationLoop {
   camera: PerspectiveCamera
   scene: Scene
   renderer: WebGLRenderer
-  updatables: any[]
+  updatables: UpdatableObject[]
 
   constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer) {
     this.camera = camera
@@ -17,8 +18,9 @@ class AnimationLoop {
 
   start() {
     this.renderer.setAnimationLoop(() => {
-      // this.tick();
-      // render a frame
+      // Update objects using the delta time once per frame
+      this.animateObjects();
+      // Draw a single frame
       this.renderer.render(this.scene, this.camera)
     });
   }
@@ -27,10 +29,23 @@ class AnimationLoop {
     this.renderer.setAnimationLoop(null)
   }
 
-  tick() {
+  animateObjects() {
     const delta = clock.getDelta()
     for (const object of this.updatables) {
-      object.tick(delta)
+      if (object.animation !== undefined) {
+        object.animation(delta)
+      }
+    }
+  }
+
+  addUpdatable(object: UpdatableObject) {
+    this.updatables.push(object)
+  }
+
+  removeUpdatable(object: UpdatableObject) {
+    const index = this.updatables.indexOf(object)
+    if (index > -1) {
+      this.updatables.splice(index, 1)
     }
   }
 }

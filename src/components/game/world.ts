@@ -9,27 +9,9 @@ import {
   Vector3,
   Object3D
 } from 'three'
+import type { CameraProperties, LightObject } from './types'
 
-/**
- * Camera properties of the PersperctiveCamera class
- * @property {number} fov - FOV = Field Of View
- * @property {number} aspect - Aspect ratio
- * @property {number} near - Near clipping plane
- * @property {number} far - Far clipping plane
- */
-interface CameraProperties {
-  fov: number
-  aspect: number
-  near: number
-  far: number
-}
-
-interface LightObject {
-  light: DirectionalLight
-  helper: DirectionalLightHelper
-}
-
-class Scene3D {
+class World {
   cameras: { [key: string]: PerspectiveCamera }
   lights: { [key: string]: LightObject }
   scene: Scene
@@ -189,5 +171,4 @@ class Scene3D {
   }
 }
 
-export type { CameraProperties, LightObject }
-export { Scene3D }
+export { World }
