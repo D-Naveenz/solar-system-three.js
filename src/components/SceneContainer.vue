@@ -20,10 +20,10 @@ export default {
         const world = new World()
         world.setContainer(container)
         // Start the animation loop
-        world.startAnimationLoop()
+        world.animationLoop.start()
 
         let terrain = createTerrain({ color: "green" })
-        world.add(terrain)
+        world.addObject(terrain)
       }
     }
   },

@@ -9,29 +9,35 @@ import {
   Vector3,
   Object3D
 } from 'three'
-import type { CameraProperties, LightObject } from './types'
+import type { LightObject, UpdatableObject } from './core/types'
+import { AnimationLoop } from './core/animation_loop'
+import { createCamera } from './core/camera'
 
 class World {
-  cameras: { [key: string]: PerspectiveCamera }
-  lights: { [key: string]: LightObject }
+  private updatables: UpdatableObject[]
+  private cameras: { [key: string]: PerspectiveCamera }
+  private lights: { [key: string]: LightObject }
+
   scene: Scene
   renderer: WebGLRenderer
   active_camera: PerspectiveCamera
+  animationLoop: AnimationLoop
 
   constructor() {
     // Initialize properties
+    this.updatables = []
     this.cameras = {}
     this.lights = {}
 
-    // Create the main camera
-    this.createCamera('main', {
+    // Create the main camera set it as the active camera
+    const main_camera = createCamera({
       fov: 90,
       aspect: 1,
       near: 0.1,
       far: 100
     })
-    // set the active camera
-    this.active_camera = this.cameras['main']
+    this.addCamera('main', { object: main_camera })
+    this.active_camera = main_camera
 
     // Create the scene
     this.scene = this.createScene()
@@ -39,8 +45,9 @@ class World {
     // Create the renderer
     this.renderer = this.createRenderer()
 
-    // Add the renderer to the DOM
-    // container.append(this.renderer.domElement)
+    // Create the animation loop
+    this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
+    this.animationLoop.updatables = this.updatables  // reference the updatables array
 
     // Create the main light
     const main_light = this.createLight('main', 'white', new Vector3(0, 0, 5)).light
@@ -56,6 +63,30 @@ class World {
     })
   }
 
+  private adjustSize() {
+    // changes the camera aspect ratio when the function is called
+    this.active_camera.aspect = window.innerWidth / window.innerHeight
+    this.active_camera.updateProjectionMatrix()
+    // todo: add a comment here
+    this.renderer.setSize(window.innerWidth, window.innerHeight)
+    this.renderer.setPixelRatio(window.devicePixelRatio)
+  }
+
+  private onResize() {
+    this.render()
+  }
+
+  private addUpdatable(object: UpdatableObject) {
+    this.updatables.push(object)
+  }
+
+  private removeUpdatable(object: UpdatableObject) {
+    const index = this.updatables.indexOf(object)
+    if (index > -1) {
+      this.updatables.splice(index, 1)
+    }
+  }
+
   setContainer(container: Element) {
     container.append(this.renderer.domElement)
   }
@@ -68,23 +99,12 @@ class World {
     }
   }
 
-  createCamera(name: string, properties: CameraProperties) {
-    const camera = new PerspectiveCamera(
-      properties.fov,
-      properties.aspect,
-      properties.near,
-      properties.far
-    )
-
-    // Move the camera back so we can view the scene
-    camera.position.set(0, 0, 10)
-    camera.lookAt(0, 0, 0)
-    // camera.tick = (delta) => {};
-
+  addCamera(name: string, camera: UpdatableObject) {
     // Push camera to cameras object
-    this.cameras[name] = camera
+    this.cameras[name] = <PerspectiveCamera>camera.object
 
-    return camera
+    // Add camera as a updatable object
+    this.addUpdatable(camera)
   }
 
   getScene() {
@@ -138,35 +158,7 @@ class World {
     return { light, lightHelper }
   }
 
-  startAnimationLoop(callback?: Function) {
-    this.renderer.setAnimationLoop(() => {
-      if (callback) {
-        // Call the provided function once per frame
-        callback()
-      }
-
-      this.render()
-    })
-  }
-
-  stopAnimationLoop() {
-    this.renderer.setAnimationLoop(null)
-  }
-
-  adjustSize() {
-    // changes the camera aspect ratio when the function is called
-    this.active_camera.aspect = window.innerWidth / window.innerHeight
-    this.active_camera.updateProjectionMatrix()
-    // todo: add a comment here
-    this.renderer.setSize(window.innerWidth, window.innerHeight)
-    this.renderer.setPixelRatio(window.devicePixelRatio)
-  }
-
-  onResize() {
-    this.render()
-  }
-
-  add(Object: Object3D) {
+  addObject(Object: Object3D) {
     this.scene.add(Object)
   }
 }
