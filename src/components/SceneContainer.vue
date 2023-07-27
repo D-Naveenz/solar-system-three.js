@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import createTerrain from './game/components/terrain';
-import { World } from './game/world';
+import createTerrain from '@/game/components/terrain';
+import { World } from '@/game/world';
 </script>
 
 <template>
@@ -44,4 +44,3 @@ export default {
   z-index: -10;
 }
 </style>
-./game/world
