@@ -12,6 +12,8 @@ interface CameraProperties {
   aspect: number
   near: number
   far: number
+  position?: { x: number, y: number, z: number }
+  lookAt?: { x: number, y: number, z: number }
 }
 
 interface LightObject {
@@ -21,7 +23,7 @@ interface LightObject {
 
 interface UpdatableObject {
   object: Object3D
-  animation: (delta: number) => void | undefined
+  animation?: (delta: number) => void
 }
 
 export type { CameraProperties, LightObject, UpdatableObject }
