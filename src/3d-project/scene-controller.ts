@@ -10,10 +10,10 @@ import {
   Object3D
 } from 'three'
 import type { LightObject, UpdatableObject } from './core/types'
-import { AnimationLoop } from './core/animation_loop'
+import { AnimationLoop } from './core/animation-loop'
 import { createCamera } from './core/camera'
 
-class World {
+class SceneController {
   private updatables: UpdatableObject[]
   private cameras: { [key: string]: PerspectiveCamera }
   private lights: { [key: string]: LightObject }
@@ -23,7 +23,7 @@ class World {
   active_camera: PerspectiveCamera
   animationLoop: AnimationLoop
 
-  constructor() {
+  constructor(canvas: Element | HTMLElement | null) {
     // Initialize properties
     this.updatables = []
     this.cameras = {}
@@ -43,7 +43,7 @@ class World {
     this.scene = this.createScene()
 
     // Create the renderer
-    this.renderer = this.createRenderer()
+    this.renderer = this.createRenderer(canvas as HTMLCanvasElement)
 
     // Create the animation loop
     this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
@@ -87,10 +87,6 @@ class World {
     }
   }
 
-  setContainer(container: Element) {
-    container.append(this.renderer.domElement)
-  }
-
   getCamera(name?: string) {
     if (name) {
       return this.cameras[name]
@@ -124,8 +120,13 @@ class World {
     return this.renderer
   }
 
-  createRenderer() {
-    const renderer = new WebGLRenderer({ antialias: true })
+  createRenderer(canvas?: HTMLCanvasElement) {
+    // using query selector returns null if the element is not found
+    if (canvas === null) {
+      throw new Error('Canvas element not found')
+    }
+
+    const renderer = new WebGLRenderer({ antialias: true, canvas })
 
     // Turn on the physically correct lighting model.
     //renderer.physicallyCorrectLights = true;
@@ -163,4 +164,4 @@ class World {
   }
 }
 
-export { World }
+export { SceneController }
