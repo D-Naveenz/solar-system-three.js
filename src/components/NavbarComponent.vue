@@ -1,5 +1,36 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router'
+
+// props
+const props = defineProps({
+  defaultTheme: {
+    type: String,
+    default: 'light'
+  }
+})
+
+// emits
+const emit = defineEmits(['changeTheme'])
+
+// data
+const theme = ref(props.defaultTheme)
+const links = ref([
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about'}
+])
+
+// computed properties
+const buttonIcon = computed(() => {
+  return theme.value === 'light' ? 'fa-sun' : 'fa-moon'
+})
+
+// methods
+function changeTheme() {
+  theme.value = theme.value === 'light' ? 'dark' : 'light'
+
+  emit('changeTheme', theme.value)
+}
 </script>
 
 <template>
@@ -27,37 +58,20 @@ import { RouterLink } from 'vue-router'
           </li>
         </ul>
         <form class="d-flex">
-          <button class="btn btn-outline-success" type="button" @click.prevent="changeTheme()">Change Theme</button>
+          <button class="btn btn-outline-primary btn-box" type="button" title="Change Theme" @click.prevent="changeTheme()">
+            <i class="fa-solid" :class="buttonIcon"></i>
+          </button>
         </form>
       </div>
     </div>
   </nav>
 </template>
 
-<script lang="ts">
-export default {
-  props: {
-    defaultTheme: {
-      type: String,
-      default: 'light'
-    }
-  },
-  data() {
-    return {
-      theme: this.defaultTheme,
-      useDarkTheme: false,
-      links: [
-        { name: 'Home', path: '/' },
-        { name: 'About', path: '/about'}
-      ]
-    }
-  },
-  methods: {
-    changeTheme() {
-      this.theme = this.theme === 'light' ? 'dark' : 'light'
-
-      this.$emit('change-theme', this.theme)
-    }
+<style lang="scss" scoped>
+.btn-box {
+  i {
+    width: 1rem;
+    height: 1rem;
   }
 }
-</script>
+</style>

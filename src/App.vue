@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { RouterView } from 'vue-router'
 import NavbarComponent from '@/components/NavbarComponent.vue';
+
+// data
+const activetheme = ref('light')
 </script>
 
 <template>
-  <NavbarComponent :change-theme="(theme: string) => activetheme = theme" />
+  <NavbarComponent @change-theme="(theme: string) => activetheme = theme" />
 
   <RouterView />
 
@@ -16,16 +20,6 @@ import NavbarComponent from '@/components/NavbarComponent.vue';
     </div>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  data() {
-    return {
-      activetheme: 'light',
-    }
-  },
-}
-</script>
 
 <style scoped>
 </style>
