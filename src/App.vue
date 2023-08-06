@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
-import { setStyle } from '@/utils/theme';
+import { setStyle, useMedia } from '@/utils/theme'
 
-import NavbarComponent from '@/components/NavbarComponent.vue';
+import NavbarComponent from '@/components/NavbarComponent.vue'
 
 // data
-const activeTheme = ref('light')
+const activeTheme = ref(useMedia('(prefers-color-scheme: dark)').value? 'dark' : 'light')
 
 // watcher
 watch(activeTheme, (theme) => {
@@ -25,13 +25,21 @@ function themeProps(theme: string) {
     '--color-border': `var(--vt-c-divider-${lightName}-2)`,
     '--color-border-hover': `var(--vt-c-divider-${lightName}-1)`,
     '--color-heading': `var(--vt-c-text-${lightName}-1)`,
-    '--color-text': `var(--vt-c-text-${lightName}-2)`,
+    '--color-text': `var(--vt-c-text-${lightName}-2)`
   }
 }
+
+onMounted(() => {
+  // set initial theme according to user's preference
+  setStyle(document.documentElement, themeProps(activeTheme.value))
+})
 </script>
 
 <template>
-  <NavbarComponent @change-theme="(theme: string) => (activeTheme = theme)" />
+  <NavbarComponent
+    :active-theme="activeTheme"
+    @change-theme="(theme: string) => (activeTheme = theme)"
+  />
 
   <RouterView />
 </template>
