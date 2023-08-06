@@ -9,25 +9,28 @@ import {
   Vector3,
   Object3D
 } from 'three'
-import type { LightObject, UpdatableObject } from './core/types'
+import type { LightObject, UpdatableObject } from './types/assemble'
 import { AnimationLoop } from './core/animation-loop'
 import { createCamera } from './core/camera'
+import { createControls } from './core/controls'
 
 class SceneController {
   private updatables: UpdatableObject[]
   private cameras: { [key: string]: PerspectiveCamera }
   private lights: { [key: string]: LightObject }
+  private options: { [key: string]: any }
 
   scene: Scene
   renderer: WebGLRenderer
   active_camera: PerspectiveCamera
   animationLoop: AnimationLoop
 
-  constructor(canvas: Element | HTMLElement | null) {
+  constructor(canvas: Element | HTMLElement | null, options?: { [key: string]: any }) {
     // Initialize properties
     this.updatables = []
     this.cameras = {}
     this.lights = {}
+    this.options = options || {}
 
     // Create the main camera set it as the active camera
     const main_camera = createCamera({
@@ -45,9 +48,22 @@ class SceneController {
     // Create the renderer
     this.renderer = this.createRenderer(canvas as HTMLCanvasElement)
 
+    // Add orbit controls
+    const controls = createControls(main_camera, this.renderer)
+    this.addUpdatable({
+      object: controls,
+      animation: () => {
+        // required if controls.enableDamping or controls.autoRotate are set to true
+        controls.update()
+      }
+    })
+
+    // controls.update() must be called after any manual changes to the camera's transform
+    controls.update()
+
     // Create the animation loop
     this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
-    this.animationLoop.updatables = this.updatables  // reference the updatables array
+    this.animationLoop.updatables = this.updatables // reference the updatables array
 
     // Create the main light
     const main_light = this.createLight('main', 'white', new Vector3(0, 0, 5)).light
@@ -64,11 +80,16 @@ class SceneController {
   }
 
   private adjustSize() {
+    // get cutoff size
+    const cutoff = this.options['cutoff'] || 0
+    const height_adjustment = window.innerHeight - (cutoff.top + cutoff.bottom)
+    const width_adjustment = window.innerWidth - (cutoff.left + cutoff.right)
+
     // changes the camera aspect ratio when the function is called
-    this.active_camera.aspect = window.innerWidth / window.innerHeight
+    this.active_camera.aspect = width_adjustment / height_adjustment
     this.active_camera.updateProjectionMatrix()
     // todo: add a comment here
-    this.renderer.setSize(window.innerWidth, window.innerHeight)
+    this.renderer.setSize(width_adjustment, height_adjustment)
     this.renderer.setPixelRatio(window.devicePixelRatio)
   }
 

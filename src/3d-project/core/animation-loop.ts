@@ -1,5 +1,5 @@
 import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from "three"
-import type { UpdatableObject } from "./types"
+import type { UpdatableObject } from "../types/assemble"
 
 const clock = new Clock()
 

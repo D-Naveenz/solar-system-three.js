@@ -11,7 +11,7 @@ const props = defineProps({
 })
 
 // emits
-const emit = defineEmits(['changeTheme'])
+const emit = defineEmits(['changeTheme', 'navbarHeight'])
 
 // data
 const theme = ref('light')
@@ -34,6 +34,12 @@ function changeTheme() {
 
 onMounted(() => {
   theme.value = props.activeTheme
+
+  // get the navbar height
+  const navbar = document.querySelector('nav')
+  if (navbar) {
+    emit('navbarHeight', navbar.offsetHeight)
+  }
 })
 </script>
 

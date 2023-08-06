@@ -7,6 +7,7 @@ import NavbarComponent from '@/components/NavbarComponent.vue'
 
 // data
 const activeTheme = ref(useMedia('(prefers-color-scheme: dark)').value? 'dark' : 'light')
+const navbarHeight = ref(0)
 
 // watcher
 watch(activeTheme, (theme) => {
@@ -39,7 +40,8 @@ onMounted(() => {
   <NavbarComponent
     :active-theme="activeTheme"
     @change-theme="(theme: string) => (activeTheme = theme)"
+    @navbar-height="(height: number) => (navbarHeight = height)"
   />
 
-  <RouterView />
+  <RouterView :upper-cut="navbarHeight" />
 </template>
