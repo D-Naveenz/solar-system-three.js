@@ -1,40 +1,37 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { ref, watch } from 'vue';
+import { RouterView } from 'vue-router'
+import { setStyle } from '@/utils/theme';
+
+import NavbarComponent from '@/components/NavbarComponent.vue';
+
+// data
+const activeTheme = ref('light')
+
+// watcher
+watch(activeTheme, (theme) => {
+  setStyle(document.documentElement, themeProps(theme))
+})
+
+// methods
+function themeProps(theme: string) {
+  let colorName = theme === 'light' ? 'white' : 'black'
+  let lightName = theme
+
+  return {
+    '--color-background': `var(--vt-c-${colorName})`,
+    '--color-background-soft': `var(--vt-c-${colorName}-soft)`,
+    '--color-background-mute': `var(--vt-c-${colorName}-mute)`,
+    '--color-border': `var(--vt-c-divider-${lightName}-2)`,
+    '--color-border-hover': `var(--vt-c-divider-${lightName}-1)`,
+    '--color-heading': `var(--vt-c-text-${lightName}-1)`,
+    '--color-text': `var(--vt-c-text-${lightName}-2)`,
+  }
+}
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">
-        <img src="@/assets/logo.svg" alt="logo" width="30" height="24" />
-      </a>
-
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/">Home</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/about">About</RouterLink>
-          </li>
-        </ul>
-        <form class="d-flex">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
-    </div>
-  </nav>
+  <NavbarComponent @change-theme="(theme: string) => (activeTheme = theme)" />
 
   <RouterView />
 </template>
