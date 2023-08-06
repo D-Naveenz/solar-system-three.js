@@ -90,7 +90,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 @media (hover: hover) {
-  a:hover {
+  a:link:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 }

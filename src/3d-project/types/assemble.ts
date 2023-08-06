@@ -22,9 +22,4 @@ interface LightObject {
   helper: DirectionalLightHelper
 }
 
-interface UpdatableObject {
-  object: Object3D | OrbitControls
-  animation?: (delta: number) => void
-}
-
-export type { CameraProperties, LightObject, UpdatableObject }
+export type { CameraProperties, LightObject }

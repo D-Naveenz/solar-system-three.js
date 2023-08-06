@@ -9,13 +9,12 @@ import {
   Vector3,
   Object3D
 } from 'three'
-import type { LightObject, UpdatableObject } from './types/assemble'
+import type { LightObject } from './types/assemble'
 import { AnimationLoop } from './core/animation-loop'
 import { createCamera } from './core/camera'
 import { createControls } from './core/controls'
 
 class SceneController {
-  private updatables: UpdatableObject[]
   private cameras: { [key: string]: PerspectiveCamera }
   private lights: { [key: string]: LightObject }
   private options: { [key: string]: any }
@@ -27,7 +26,6 @@ class SceneController {
 
   constructor(canvas: Element | HTMLElement | null, options?: { [key: string]: any }) {
     // Initialize properties
-    this.updatables = []
     this.cameras = {}
     this.lights = {}
     this.options = options || {}
@@ -39,7 +37,7 @@ class SceneController {
       near: 0.1,
       far: 100
     })
-    this.addCamera('main', { object: main_camera })
+    this.addCamera('main', main_camera)
     this.active_camera = main_camera
 
     // Create the scene
@@ -48,22 +46,18 @@ class SceneController {
     // Create the renderer
     this.renderer = this.createRenderer(canvas as HTMLCanvasElement)
 
-    // Add orbit controls
-    const controls = createControls(main_camera, this.renderer)
-    this.addUpdatable({
-      object: controls,
-      animation: () => {
-        // required if controls.enableDamping or controls.autoRotate are set to true
-        controls.update()
-      }
-    })
-
-    // controls.update() must be called after any manual changes to the camera's transform
-    controls.update()
-
     // Create the animation loop
     this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
-    this.animationLoop.updatables = this.updatables // reference the updatables array
+
+    // Add orbit controls
+    const controls = createControls(main_camera, this.renderer)
+    // controls.update() must be called after any manual changes to the camera's transform
+    controls.update()
+    // Add controls to the animation loop
+    this.animationLoop.addAnimation(() => {
+      // required if controls.enableDamping or controls.autoRotate are set to true
+      controls.update()
+    })
 
     // Create the main light
     const main_light = this.createLight('main', 'white', new Vector3(0, 0, 5)).light
@@ -80,16 +74,12 @@ class SceneController {
   }
 
   private adjustSize() {
-    // get cutoff size
-    const cutoff = this.options['cutoff'] || 0
-    const height_adjustment = window.innerHeight - (cutoff.top + cutoff.bottom)
-    const width_adjustment = window.innerWidth - (cutoff.left + cutoff.right)
-
+    const canvasSize = this.calculateCanvasSize(this.options['cutoff'] || 0)
     // changes the camera aspect ratio when the function is called
-    this.active_camera.aspect = width_adjustment / height_adjustment
+    this.active_camera.aspect = canvasSize.width / canvasSize.height
     this.active_camera.updateProjectionMatrix()
     // todo: add a comment here
-    this.renderer.setSize(width_adjustment, height_adjustment)
+    this.renderer.setSize(canvasSize.width, canvasSize.height)
     this.renderer.setPixelRatio(window.devicePixelRatio)
   }
 
@@ -97,15 +87,19 @@ class SceneController {
     this.render()
   }
 
-  private addUpdatable(object: UpdatableObject) {
-    this.updatables.push(object)
-  }
+  private calculateCanvasSize(cutoff: { [key: string]: number } | number) {
+    let width = 0
+    let height = 0
 
-  private removeUpdatable(object: UpdatableObject) {
-    const index = this.updatables.indexOf(object)
-    if (index > -1) {
-      this.updatables.splice(index, 1)
+    if (typeof cutoff === 'number') {
+      width = window.innerWidth - cutoff * 2
+      height = window.innerHeight - cutoff * 2
+    } else {
+      width = window.innerWidth - (cutoff.left + cutoff.right)
+      height = window.innerHeight - (cutoff.top + cutoff.bottom)
     }
+    
+    return { width, height }
   }
 
   getCamera(name?: string) {
@@ -116,12 +110,9 @@ class SceneController {
     }
   }
 
-  addCamera(name: string, camera: UpdatableObject) {
+  addCamera(name: string, camera: PerspectiveCamera) {
     // Push camera to cameras object
-    this.cameras[name] = <PerspectiveCamera>camera.object
-
-    // Add camera as a updatable object
-    this.addUpdatable(camera)
+    this.cameras[name] = camera
   }
 
   getScene() {

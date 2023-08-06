@@ -1,5 +1,4 @@
 import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from "three"
-import type { UpdatableObject } from "../types/assemble"
 
 const clock = new Clock()
 
@@ -8,21 +7,20 @@ class AnimationLoop {
   private scene: Scene
   private renderer: WebGLRenderer
 
-  updatables: UpdatableObject[]
+  animations: ((delta: number) => void)[]
 
   constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer) {
     this.camera = camera
     this.scene = scene
     this.renderer = renderer
-    this.updatables = []
+    this.animations = []
   }
 
   private animateObjects() {
     const delta = clock.getDelta()
-    for (const object of this.updatables) {
-      if (object.animation !== undefined) {
-        object.animation(delta)
-      }
+
+    for (const animation of this.animations) {
+      animation(delta)
     }
   }
 
@@ -37,6 +35,17 @@ class AnimationLoop {
 
   stop() {
     this.renderer.setAnimationLoop(null)
+  }
+
+  addAnimation(animation: (delta: number) => void) {
+    this.animations.push(animation)
+  }
+
+  removeAnimation(animation: (delta: number) => void) {
+    const index = this.animations.indexOf(animation)
+    if (index > -1) {
+      this.animations.splice(index, 1)
+    }
   }
 }
 
