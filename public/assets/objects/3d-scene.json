@@ -1,0 +1,29 @@
+{
+  "renderer": {
+    "antialias": true
+  },
+  "controls": {
+    "orbitControls": {
+      "damping": {
+        "dampingFactor": 0.05
+      },
+      "distance": {
+        "min": 0.1,
+        "max": 1000,
+        "polarAngleDevisor": 2
+      }
+    }
+  },
+  "mainCamera": {
+    "fov": 90,
+    "aspect": 1,
+    "near": 0.1,
+    "far": 100
+  },
+  "mainLight": {
+    "color": "white",
+    "intensity": 4,
+    "size": 0,
+    "position": { "x": 0, "y": 0, "z": 5 }
+  }
+}

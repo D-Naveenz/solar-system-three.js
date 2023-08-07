@@ -2,23 +2,10 @@
 import { onBeforeMount, onMounted, ref } from 'vue'
 import createTerrain from '@/3d-project/components/terrain'
 import { SceneController } from '@/3d-project/scene-controller'
+import type { SceneProperties } from '@/3d-project/types/scene-props'
 
+// Data
 const heightCutoff = ref(0)
-
-function initScene() {
-  // Create an instance of 3D scene
-  const world = new SceneController()
-  // Start the animation loop
-  world.animationLoop.start()
-
-  let terrain = createTerrain({ color: 'green' })
-  world.addObject(terrain)
-
-  return world
-}
-
-// initialize the scene
-const world = initScene()
 
 onBeforeMount(() => {
   // get the height of the navbar
@@ -27,26 +14,44 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  world.sizeDefenition = () => {
-    return {
-      width: window.innerWidth,
-      height: window.innerHeight - heightCutoff.value
-    }
-  }
+  // get data from the json file using fetch
+  fetch('./assets/objects/3d-scene.json')
+    .then((res) => {
+      return res.json()
+    })
+    .then((props: SceneProperties) => {
+      // Create an instance of 3D scene
+      const world = new SceneController(props)
+      // Start the animation loop
+      world.animationLoop.start()
 
-  // bind the canvas to the component
-  const mountedComponent = document.querySelector('#world-component')
-  if (mountedComponent) {
-    world.bind(mountedComponent)
-  }
+      let terrain = createTerrain({ color: 'green' })
+      world.addObject(terrain)
 
-  // Adjust the size of the canvas
-  world.adjustSize()
+      world.sizeDefenition = () => {
+        return {
+          width: window.innerWidth,
+          height: window.innerHeight - heightCutoff.value
+        }
+      }
+
+      // bind the canvas to the component
+      const mountedComponent = document.querySelector('#world-component')
+      if (mountedComponent) {
+        world.bind(mountedComponent)
+      }
+
+      // Adjust the size of the canvas
+      world.adjustSize()
+    })
 })
 </script>
 
 <template>
-  <div id="world-component" :style="{ maxHeight: `calc(100vh - ${heightCutoff}px)`, top: heightCutoff }">
+  <div
+    id="world-component"
+    :style="{ maxHeight: `calc(100vh - ${heightCutoff}px)`, top: heightCutoff }"
+  >
     <!-- Threejs canvas is placed here -->
   </div>
 </template>
