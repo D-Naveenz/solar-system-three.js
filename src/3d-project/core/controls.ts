@@ -1,14 +1,21 @@
-import type { PerspectiveCamera, WebGLRenderer } from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import type { PerspectiveCamera, WebGLRenderer } from 'three'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import type { OrbitControlProperties } from '../types/object-props'
 
-
-export function createControls(camera: PerspectiveCamera, renderer: WebGLRenderer) {
+export function createControls(
+  camera: PerspectiveCamera,
+  renderer: WebGLRenderer,
+  props: OrbitControlProperties
+) {
   const controls = new OrbitControls(camera, renderer.domElement)
-  controls.enableDamping = true
-  controls.dampingFactor = 0.05
+  if (props.damping) {
+    controls.enableDamping = true
+    controls.dampingFactor = props.damping.dampingFactor
+  }
+
   // controls.screenSpacePanning = false
-  controls.minDistance = 1
-  controls.maxDistance = 500
-  controls.maxPolarAngle = Math.PI / 2
+  controls.minDistance = props.distance.min
+  controls.maxDistance = props.distance.max
+  controls.maxPolarAngle = Math.PI / props.distance.polarAngleDevisor
   return controls
 }
