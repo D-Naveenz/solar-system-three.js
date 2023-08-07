@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import createTerrain from '@/3d-project/components/terrain'
 import { SceneController } from '@/3d-project/scene-controller'
 
 function initScene() {
-  // Get the reference to the canvas element
-  const canvas = document.querySelector('#scene-3d')
   // Create an instance of 3D scene
-  const world = new SceneController(canvas)
+  const world = new SceneController()
   // Start the animation loop
   world.animationLoop.start()
 
@@ -17,31 +15,27 @@ function initScene() {
   return world
 }
 
+// initialize the scene
+const world = initScene()
+
 onMounted(() => {
   // get the size of the mounted-component div
-  const mountedComponent = <HTMLDivElement>document.querySelector('#mounted-components')
+  const mountedComponent = document.querySelector('#world-component')
   if (mountedComponent) {
-    // initialize the scene
-    const world = initScene()
-
     world.sizeDefenition = () => {
       return {
-        width: mountedComponent.offsetWidth,
-        height: mountedComponent.offsetHeight
+        width: mountedComponent.clientWidth,
+        height: mountedComponent.clientHeight
       }
     }
+
+    // Get the reference to the canvas element
+    world.bind(mountedComponent)
   }
+
+  world.adjustSize() // Set initial size on load.
 })
 </script>
 
-<template>
-  <canvas
-    id="scene-3d"
-  ></canvas>
-</template>
-
 <style scoped>
-#scene-3d {
-  position: fixed;
-}
 </style>

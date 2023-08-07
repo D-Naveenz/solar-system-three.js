@@ -24,7 +24,7 @@ class SceneController {
   animationLoop: AnimationLoop
   sizeDefenition: () => { width: number; height: number }
 
-  constructor(canvas: Element | HTMLElement | null) {
+  constructor() {
     // Initialize properties
     this.cameras = {}
     this.lights = {}
@@ -46,7 +46,7 @@ class SceneController {
     this.scene = this.createScene()
 
     // Create the renderer
-    this.renderer = this.createRenderer(canvas as HTMLCanvasElement)
+    this.renderer = this.createRenderer()
 
     // Create the animation loop
     this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
@@ -75,7 +75,17 @@ class SceneController {
     })
   }
 
-  private adjustSize() {
+  private onResize() {
+    this.render()
+  }
+
+  bind(holder: Element | null) {
+    if (holder) {
+      holder.appendChild(this.renderer.domElement)
+    }
+  }
+  
+  adjustSize() {
     const canvasSize = this.sizeDefenition()
     // changes the camera aspect ratio when the function is called
     this.active_camera.aspect = canvasSize.width / canvasSize.height
@@ -83,10 +93,6 @@ class SceneController {
     // todo: add a comment here
     this.renderer.setSize(canvasSize.width, canvasSize.height)
     this.renderer.setPixelRatio(window.devicePixelRatio)
-  }
-
-  private onResize() {
-    this.render()
   }
 
   getCamera(name?: string) {
@@ -119,13 +125,8 @@ class SceneController {
     return this.renderer
   }
 
-  createRenderer(canvas?: HTMLCanvasElement) {
-    // using query selector returns null if the element is not found
-    if (canvas === null) {
-      throw new Error('Canvas element not found')
-    }
-
-    const renderer = new WebGLRenderer({ antialias: true, canvas })
+  createRenderer() {
+    const renderer = new WebGLRenderer({ antialias: true })
 
     // Turn on the physically correct lighting model.
     //renderer.physicallyCorrectLights = true;
