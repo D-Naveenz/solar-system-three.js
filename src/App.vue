@@ -40,8 +40,17 @@ onMounted(() => {
   <NavbarComponent
     :active-theme="activeTheme"
     @change-theme="(theme: string) => (activeTheme = theme)"
-    @navbar-height="(height: number) => (navbarHeight = height)"
   />
 
-  <RouterView :upper-cut="navbarHeight" />
+  <div id="mounted-components" :style="{ marginTop: navbarHeight }">
+    <RouterView />
+  </div>
 </template>
+
+<style lang="scss" scoped>
+#mounted-components {
+  width: 100%;
+  height: 100%;
+}
+</style>
+```

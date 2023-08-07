@@ -17,18 +17,20 @@ import { createControls } from './core/controls'
 class SceneController {
   private cameras: { [key: string]: PerspectiveCamera }
   private lights: { [key: string]: LightObject }
-  private options: { [key: string]: any }
 
   scene: Scene
   renderer: WebGLRenderer
   active_camera: PerspectiveCamera
   animationLoop: AnimationLoop
+  sizeDefenition: () => { width: number; height: number }
 
-  constructor(canvas: Element | HTMLElement | null, options?: { [key: string]: any }) {
+  constructor(canvas: Element | HTMLElement | null) {
     // Initialize properties
     this.cameras = {}
     this.lights = {}
-    this.options = options || {}
+    this.sizeDefenition = () => {
+      return { width: window.innerWidth, height: window.innerHeight }
+    }
 
     // Create the main camera set it as the active camera
     const main_camera = createCamera({
@@ -74,7 +76,7 @@ class SceneController {
   }
 
   private adjustSize() {
-    const canvasSize = this.calculateCanvasSize(this.options['cutoff'] || 0)
+    const canvasSize = this.sizeDefenition()
     // changes the camera aspect ratio when the function is called
     this.active_camera.aspect = canvasSize.width / canvasSize.height
     this.active_camera.updateProjectionMatrix()
@@ -85,21 +87,6 @@ class SceneController {
 
   private onResize() {
     this.render()
-  }
-
-  private calculateCanvasSize(cutoff: { [key: string]: number } | number) {
-    let width = 0
-    let height = 0
-
-    if (typeof cutoff === 'number') {
-      width = window.innerWidth - cutoff * 2
-      height = window.innerHeight - cutoff * 2
-    } else {
-      width = window.innerWidth - (cutoff.left + cutoff.right)
-      height = window.innerHeight - (cutoff.top + cutoff.bottom)
-    }
-    
-    return { width, height }
   }
 
   getCamera(name?: string) {

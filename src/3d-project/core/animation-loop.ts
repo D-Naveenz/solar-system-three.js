@@ -1,4 +1,4 @@
-import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from "three"
+import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 const clock = new Clock()
 
@@ -16,21 +16,17 @@ class AnimationLoop {
     this.animations = []
   }
 
-  private animateObjects() {
-    const delta = clock.getDelta()
-
-    for (const animation of this.animations) {
-      animation(delta)
-    }
-  }
-
   start() {
     this.renderer.setAnimationLoop(() => {
       // Update objects using the delta time once per frame
-      this.animateObjects();
+      const delta = clock.getDelta()
+      for (const animation of this.animations) {
+        animation(delta)
+      }
+      
       // Draw a single frame
       this.renderer.render(this.scene, this.camera)
-    });
+    })
   }
 
   stop() {
