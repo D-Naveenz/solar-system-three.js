@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, Points, PointsMaterial, TextureLoader } from "three"
 
-export function createParticles(count: number, textureUrl: string) {
+export function createParticles(count: number, textureUrl: string, alphaUrl: string) {
   const particleGeometry = new BufferGeometry
   const particleCount = count
 
@@ -14,10 +14,12 @@ export function createParticles(count: number, textureUrl: string) {
 
   const textureLoader = new TextureLoader()
   const particleTexture = textureLoader.load(textureUrl)
+  const alphaTexture = textureLoader.load(alphaUrl)
 
   const particleMaterial = new PointsMaterial({
     map: particleTexture,
     transparent: true,
+    alphaMap: alphaTexture,
     size: 0.15,
     sizeAttenuation: true // make the particles smaller when they are further away
   })

@@ -21,7 +21,7 @@ function createGameObjects(controller: SceneController) {
   controller.dir.add('pointLight', { object3D: pointLight })
 
   // particles
-  const particles = createParticles(5000, './assets/textures/star_alpha.png')
+  const particles = createParticles(5000, './assets/textures/star.png', './assets/textures/star_alpha.png')
   controller.dir.add('particles', { object3D: particles })
 
   // load saturn model
