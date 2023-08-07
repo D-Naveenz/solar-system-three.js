@@ -37,7 +37,9 @@ class AnimationLoop {
     this.animations.push(animation)
   }
 
-  removeAnimation(animation: (delta: number) => void) {
+  removeAnimation(animation?: (delta: number) => void) {
+    if (!animation) return
+    
     const index = this.animations.indexOf(animation)
     if (index > -1) {
       this.animations.splice(index, 1)

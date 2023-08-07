@@ -20,7 +20,7 @@ export default function createTerrain(props: { color: ColorRepresentation }) {
 
   const terrain = new Mesh(geometry, material)
   terrain.position.set(0, 0, 0)
-  terrain.rotation.x -= Math.PI * 0.35
+  terrain.rotation.x -= Math.PI * 0.45
 
   //let frame = 0
 

@@ -1,5 +1,5 @@
 import { PerspectiveCamera } from "three"
-import type { CameraProperties } from "./types"
+import type { CameraProperties } from "../types/object-props"
 
 export function createCamera(properties: CameraProperties) {
   const camera = new PerspectiveCamera(
@@ -10,7 +10,7 @@ export function createCamera(properties: CameraProperties) {
   )
 
   // Move the camera back so we can view the scene
-  let position = { x: 0, y: 0, z: 10 }
+  let position = { x: 0, y: 5, z: 10 }
   let lookAt = { x: 0, y: 0, z: 0 }
 
   if (properties.position !== undefined) {
