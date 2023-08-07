@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ThreeController from "@/components/ThreeController.vue";
+import ThreeController from '@/components/ThreeController.vue'
 </script>
 
 <template>

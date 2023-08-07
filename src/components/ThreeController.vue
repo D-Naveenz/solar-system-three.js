@@ -1,37 +1,62 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue'
 import createTerrain from '@/3d-project/components/terrain'
 import { SceneController } from '@/3d-project/scene-controller'
 
+const heightCutoff = ref(0)
+
 function initScene() {
-  // Get the reference to the canvas element
-  const canvas = document.querySelector('#scene-3d')
   // Create an instance of 3D scene
-  const world = new SceneController(canvas)
+  const world = new SceneController()
   // Start the animation loop
   world.animationLoop.start()
 
   let terrain = createTerrain({ color: 'green' })
   world.addObject(terrain)
+
+  return world
 }
 
+// initialize the scene
+const world = initScene()
+
+onBeforeMount(() => {
+  // get the height of the navbar
+  const navbar = document.querySelector('.navbar')
+  heightCutoff.value = navbar ? navbar.clientHeight : 0
+})
+
 onMounted(() => {
-  initScene()
+  world.sizeDefenition = () => {
+    return {
+      width: window.innerWidth,
+      height: window.innerHeight - heightCutoff.value
+    }
+  }
+
+  // bind the canvas to the component
+  const mountedComponent = document.querySelector('#world-component')
+  if (mountedComponent) {
+    world.bind(mountedComponent)
+  }
+
+  // Adjust the size of the canvas
+  world.adjustSize()
 })
 </script>
 
 <template>
-  <canvas id="scene-3d"></canvas>
+  <div id="world-component" :style="{ maxHeight: `calc(100vh - ${heightCutoff}px)`, top: heightCutoff }">
+    <!-- Threejs canvas is placed here -->
+  </div>
 </template>
 
 <style scoped>
-#scene-3d {
-  width: 100vw;
-  height: 100vh;
+#world-component {
+  width: 100%;
+  height: 100%;
 
   position: fixed;
   left: 0;
-  top: 0;
-  z-index: -10;
 }
 </style>

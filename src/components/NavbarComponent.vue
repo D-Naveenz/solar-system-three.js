@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 // props
 const props = defineProps({
-  defaultTheme: {
+  activeTheme: {
     type: String,
     default: 'light'
   }
@@ -13,8 +13,9 @@ const props = defineProps({
 // emits
 const emit = defineEmits(['changeTheme'])
 
+
 // data
-const theme = ref(props.defaultTheme)
+const theme = ref('light')
 const links = ref([
   { name: 'Home', path: '/' },
   { name: 'About', path: '/about' }
@@ -31,13 +32,17 @@ function changeTheme() {
 
   emit('changeTheme', theme.value)
 }
+
+onMounted(() => {
+  theme.value = props.activeTheme
+})
 </script>
 
 <template>
   <nav :class="[`navbar-${theme}`, `bg-${theme}`, 'navbar', 'navbar-expand-lg', 'changable-theme']">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">
-        <img src="@/assets/logo.svg" alt="logo" width="30" height="24" />
+      <a class="navbar-brand">
+        <img src="@/assets/logo.png" alt="logo" width="34" height="32" />
       </a>
 
       <button
@@ -80,7 +85,7 @@ function changeTheme() {
 
 <style lang="scss" scoped>
 @media (hover: hover) {
-  a:hover {
+  a:link:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 }

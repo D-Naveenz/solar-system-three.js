@@ -1,4 +1,5 @@
 import type { DirectionalLight, DirectionalLightHelper, Object3D } from "three"
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 /**
  * Camera properties of the PersperctiveCamera class
@@ -21,9 +22,4 @@ interface LightObject {
   helper: DirectionalLightHelper
 }
 
-interface UpdatableObject {
-  object: Object3D
-  animation?: (delta: number) => void
-}
-
-export type { CameraProperties, LightObject, UpdatableObject }
+export type { CameraProperties, LightObject }

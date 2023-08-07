@@ -9,12 +9,12 @@ import {
   Vector3,
   Object3D
 } from 'three'
-import type { LightObject, UpdatableObject } from './core/types'
+import type { LightObject } from './types/assemble'
 import { AnimationLoop } from './core/animation-loop'
 import { createCamera } from './core/camera'
+import { createControls } from './core/controls'
 
 class SceneController {
-  private updatables: UpdatableObject[]
   private cameras: { [key: string]: PerspectiveCamera }
   private lights: { [key: string]: LightObject }
 
@@ -22,12 +22,15 @@ class SceneController {
   renderer: WebGLRenderer
   active_camera: PerspectiveCamera
   animationLoop: AnimationLoop
+  sizeDefenition: () => { width: number; height: number }
 
-  constructor(canvas: Element | HTMLElement | null) {
+  constructor() {
     // Initialize properties
-    this.updatables = []
     this.cameras = {}
     this.lights = {}
+    this.sizeDefenition = () => {
+      return { width: window.innerWidth, height: window.innerHeight }
+    }
 
     // Create the main camera set it as the active camera
     const main_camera = createCamera({
@@ -36,18 +39,27 @@ class SceneController {
       near: 0.1,
       far: 100
     })
-    this.addCamera('main', { object: main_camera })
+    this.addCamera('main', main_camera)
     this.active_camera = main_camera
 
     // Create the scene
     this.scene = this.createScene()
 
     // Create the renderer
-    this.renderer = this.createRenderer(canvas as HTMLCanvasElement)
+    this.renderer = this.createRenderer()
 
     // Create the animation loop
     this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
-    this.animationLoop.updatables = this.updatables  // reference the updatables array
+
+    // Add orbit controls
+    const controls = createControls(main_camera, this.renderer)
+    // controls.update() must be called after any manual changes to the camera's transform
+    controls.update()
+    // Add controls to the animation loop
+    this.animationLoop.addAnimation(() => {
+      // required if controls.enableDamping or controls.autoRotate are set to true
+      controls.update()
+    })
 
     // Create the main light
     const main_light = this.createLight('main', 'white', new Vector3(0, 0, 5)).light
@@ -63,28 +75,24 @@ class SceneController {
     })
   }
 
-  private adjustSize() {
-    // changes the camera aspect ratio when the function is called
-    this.active_camera.aspect = window.innerWidth / window.innerHeight
-    this.active_camera.updateProjectionMatrix()
-    // todo: add a comment here
-    this.renderer.setSize(window.innerWidth, window.innerHeight)
-    this.renderer.setPixelRatio(window.devicePixelRatio)
-  }
-
   private onResize() {
     this.render()
   }
 
-  private addUpdatable(object: UpdatableObject) {
-    this.updatables.push(object)
-  }
-
-  private removeUpdatable(object: UpdatableObject) {
-    const index = this.updatables.indexOf(object)
-    if (index > -1) {
-      this.updatables.splice(index, 1)
+  bind(holder: Element | null) {
+    if (holder) {
+      holder.appendChild(this.renderer.domElement)
     }
+  }
+  
+  adjustSize() {
+    const canvasSize = this.sizeDefenition()
+    // changes the camera aspect ratio when the function is called
+    this.active_camera.aspect = canvasSize.width / canvasSize.height
+    this.active_camera.updateProjectionMatrix()
+    // todo: add a comment here
+    this.renderer.setSize(canvasSize.width, canvasSize.height)
+    this.renderer.setPixelRatio(window.devicePixelRatio)
   }
 
   getCamera(name?: string) {
@@ -95,12 +103,9 @@ class SceneController {
     }
   }
 
-  addCamera(name: string, camera: UpdatableObject) {
+  addCamera(name: string, camera: PerspectiveCamera) {
     // Push camera to cameras object
-    this.cameras[name] = <PerspectiveCamera>camera.object
-
-    // Add camera as a updatable object
-    this.addUpdatable(camera)
+    this.cameras[name] = camera
   }
 
   getScene() {
@@ -120,13 +125,8 @@ class SceneController {
     return this.renderer
   }
 
-  createRenderer(canvas?: HTMLCanvasElement) {
-    // using query selector returns null if the element is not found
-    if (canvas === null) {
-      throw new Error('Canvas element not found')
-    }
-
-    const renderer = new WebGLRenderer({ antialias: true, canvas })
+  createRenderer() {
+    const renderer = new WebGLRenderer({ antialias: true })
 
     // Turn on the physically correct lighting model.
     //renderer.physicallyCorrectLights = true;
