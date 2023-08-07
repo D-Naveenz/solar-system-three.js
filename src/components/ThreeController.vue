@@ -1,16 +1,44 @@
 <script setup lang="ts">
 import { onBeforeMount, onMounted, ref } from 'vue'
-import createTerrain from '@/3d-project/components/terrain'
 import { SceneController } from '@/3d-project/scene-controller'
 import type { SceneProperties } from '@/3d-project/types/scene-props'
+import { AmbientLight, PointLight } from 'three'
+import { createParticles } from '@/3d-project/components/particles'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
 // Data
 const heightCutoff = ref(0)
 
 function createGameObjects(controller: SceneController) {
-  // Create a terrain
-  let terrain = createTerrain({ color: 'green' })
-  controller.dir.add("terrain", {object3D: terrain})
+  // ambient light
+  let ambientLight = new AmbientLight(0xffffff, 2)
+  ambientLight.position.set(0, 0, 0)
+  controller.dir.add('ambientLight', { object3D: ambientLight })
+
+  // point light
+  let pointLight = new PointLight(0xffffff, 2)
+  pointLight.position.set(0, 0, 0)
+  controller.dir.add('pointLight', { object3D: pointLight })
+
+  // particles
+  const particles = createParticles(5000, './assets/textures/star.png', './assets/textures/star_alpha.png')
+  controller.dir.add('particles', { object3D: particles })
+
+  // load saturn model
+  const loader = new GLTFLoader()
+  loader.load(
+    './assets/models/saturn/saturn.gltf',
+    (gltf) => {
+      const saturn = gltf.scene
+      saturn.scale.set(0.5, 0.5, 0.5)
+      saturn.position.set(0, 0, 0)
+      controller.dir.add('saturn', { object3D: saturn })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
 }
 
 onBeforeMount(() => {
