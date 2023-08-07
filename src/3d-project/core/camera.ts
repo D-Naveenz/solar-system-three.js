@@ -1,5 +1,5 @@
 import { PerspectiveCamera } from "three"
-import type { CameraProperties } from "./types"
+import type { CameraProperties } from "../types/object-props"
 
 export function createCamera(properties: CameraProperties) {
   const camera = new PerspectiveCamera(

@@ -5,59 +5,53 @@ import {
   Color,
   WebGLRenderer,
   DirectionalLight,
-  DirectionalLightHelper,
-  Object3D
 } from 'three'
 import type {
-  LightObject,
-  LightProperties,
   RendererProperties,
   SceneProperties
 } from './types/assemble'
 import { AnimationLoop } from './core/animation-loop'
 import { createCamera } from './core/camera'
 import { createControls } from './core/controls'
+import { ObjectDirectory } from './core/object-dir'
+import { createLight } from './core/light'
 
 class SceneController {
-  private cameras: { [key: string]: PerspectiveCamera }
-  private lights: { [key: string]: LightObject }
-  private props?: SceneProperties
+  private scene: Scene
+  private renderer: WebGLRenderer
 
-  scene: Scene
-  renderer: WebGLRenderer
   active_camera: PerspectiveCamera
   animationLoop: AnimationLoop
+  dir: ObjectDirectory
   sizeDefenition: () => { width: number; height: number }
 
   constructor(properties?: SceneProperties) {
     // Initialize properties
-    this.cameras = {}
-    this.lights = {}
     this.sizeDefenition = () => {
       return { width: window.innerWidth, height: window.innerHeight }
     }
 
     // Load properties
-    if (properties) this.props = properties
-    else this.props = this.loadDefaultProps()
+    let props: SceneProperties
+    if (properties) props = properties
+    else props = this.loadDefaultProps()
 
     // Create the main camera set it as the active camera
-    const main_camera = createCamera(this.props.mainCamera)
-    this.addCamera('main', main_camera)
+    const main_camera = createCamera(props.mainCamera)
     this.active_camera = main_camera
 
     // Create the scene
-    this.scene = this.createScene(this.props.scene?.color)
+    this.scene = this.createScene(props.scene?.color)
 
     // Create the renderer
-    this.renderer = this.createRenderer(this.props.renderer)
+    this.renderer = this.createRenderer(props.renderer)
 
     // Create the animation loop
     this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
 
-    if (this.props.controls.orbitControls) {
+    if (props.controls.orbitControls) {
       // Add orbit controls
-      const controls = createControls(main_camera, this.renderer, this.props.controls.orbitControls)
+      const controls = createControls(main_camera, this.renderer, props.controls.orbitControls)
       // controls.update() must be called after any manual changes to the camera's transform
       controls.update()
       // Add controls to the animation loop
@@ -67,10 +61,17 @@ class SceneController {
       })
     }
 
-    if (this.props.mainLight) {
+    // Create the object directory
+    this.dir = new ObjectDirectory(this.animationLoop, (object) => {
+      this.scene.add(object)
+    })
+    this.dir.add('main_camera', { object3D: main_camera }, false) // Add the main camera to the directory
+
+    if (props.mainLight) {
       // Create the main light
-      const main_light = this.createLight('main', this.props.mainLight).light
-      this.scene.add(main_light)
+      const main_light = createLight(props.mainLight).light
+      this.dir.add('main_light', { object3D: main_light }) // Add the main light to the directory
+      // this.scene.add(main_light)
     }
 
     // Setup the resizer
@@ -121,6 +122,43 @@ class SceneController {
     return props
   }
 
+  getCamera(name?: string) {
+    if (!name) name = 'main_camera'
+    return <PerspectiveCamera>this.dir.get(name).object3D
+  }
+
+  getLight(name?: string) {
+    if (!name) name = 'main_light'
+    return <DirectionalLight>this.dir.get(name).object3D
+  }
+
+  getObject(name: string) {
+    return this.dir.get(name).object3D
+  }
+
+  getScene() {
+    return this.scene
+  }
+
+  getRenderer() {
+    return this.renderer
+  }
+
+  createScene(color?: ColorRepresentation) {
+    const scene = new Scene()
+    if (color) {
+      scene.background = new Color(color)
+    }
+
+    return scene
+  }
+
+  createRenderer(properties?: RendererProperties) {
+    const renderer = new WebGLRenderer(properties)
+
+    return renderer
+  }
+
   bind(holder: Element | null) {
     if (holder) {
       holder.appendChild(this.renderer.domElement)
@@ -137,71 +175,9 @@ class SceneController {
     this.renderer.setPixelRatio(window.devicePixelRatio)
   }
 
-  getCamera(name?: string) {
-    if (name) {
-      return this.cameras[name]
-    } else {
-      return this.cameras['main']
-    }
-  }
-
-  addCamera(name: string, camera: PerspectiveCamera) {
-    // Push camera to cameras object
-    this.cameras[name] = camera
-  }
-
-  getScene() {
-    return this.scene
-  }
-
-  createScene(color?: ColorRepresentation) {
-    const scene = new Scene()
-    if (color) {
-      scene.background = new Color(color)
-    }
-
-    return scene
-  }
-
-  getRenderer() {
-    return this.renderer
-  }
-
-  createRenderer(properties?: RendererProperties) {
-    const renderer = new WebGLRenderer(properties)
-
-    // Turn on the physically correct lighting model.
-    //renderer.physicallyCorrectLights = true;
-
-    return renderer
-  }
-
   render() {
     // Draw a single frame
     this.renderer.render(this.scene, this.active_camera)
-  }
-
-  getLight(name?: string) {
-    if (name) {
-      return this.lights[name]
-    } else {
-      return this.lights['main']
-    }
-  }
-
-  createLight(name: string, props: LightProperties) {
-    const light = new DirectionalLight(props.color, props.intensity)
-    const lightHelper = new DirectionalLightHelper(light, props.size)
-    light.position.set(props.position.x, props.position.y, props.position.z)
-
-    // Push light to the lights object
-    this.lights[name] = { light, helper: lightHelper }
-
-    return { light, lightHelper }
-  }
-
-  addObject(Object: Object3D) {
-    this.scene.add(Object)
   }
 }
 

@@ -51,10 +51,16 @@ interface LightObject {
   helper: DirectionalLightHelper
 }
 
+interface SceneObject {
+  object3D: any
+  animation?: (delta: number) => void
+}
+
 export type {
   CameraProperties,
   LightProperties,
   RendererProperties,
   OrbitControlProperties,
-  LightObject
+  LightObject,
+  SceneObject
 }

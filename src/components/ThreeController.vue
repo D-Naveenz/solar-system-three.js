@@ -25,8 +25,9 @@ onMounted(() => {
       // Start the animation loop
       world.animationLoop.start()
 
+      // Create a terrain
       let terrain = createTerrain({ color: 'green' })
-      world.addObject(terrain)
+      world.dir.add("terrain", {object3D: terrain})
 
       world.sizeDefenition = () => {
         return {
