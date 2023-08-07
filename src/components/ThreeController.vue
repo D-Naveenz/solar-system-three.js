@@ -7,6 +7,12 @@ import type { SceneProperties } from '@/3d-project/types/scene-props'
 // Data
 const heightCutoff = ref(0)
 
+function createGameObjects(controller: SceneController) {
+  // Create a terrain
+  let terrain = createTerrain({ color: 'green' })
+  controller.dir.add("terrain", {object3D: terrain})
+}
+
 onBeforeMount(() => {
   // get the height of the navbar
   const navbar = document.querySelector('.navbar')
@@ -25,9 +31,8 @@ onMounted(() => {
       // Start the animation loop
       world.animationLoop.start()
 
-      // Create a terrain
-      let terrain = createTerrain({ color: 'green' })
-      world.dir.add("terrain", {object3D: terrain})
+      // Create the game objects
+      createGameObjects(world)
 
       world.sizeDefenition = () => {
         return {

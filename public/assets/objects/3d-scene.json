@@ -24,6 +24,6 @@
     "color": "white",
     "intensity": 4,
     "size": 0,
-    "position": { "x": 0, "y": 0, "z": 5 }
+    "position": { "x": 0, "y": 5, "z": 15 }
   }
 }
