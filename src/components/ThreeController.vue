@@ -2,27 +2,49 @@
 import { onBeforeMount, onMounted, ref } from 'vue'
 import { SceneController } from '@/3d-project/scene-controller'
 import type { SceneProperties } from '@/3d-project/types/scene-props'
-import { AmbientLight, PointLight } from 'three'
+import { AmbientLight, CubeTextureLoader, PointLight } from 'three'
 import { createParticles } from '@/3d-project/components/particles'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { createStarrySkybox } from '@/3d-project/components/skybox'
 
 // Data
 const heightCutoff = ref(0)
 
 function createGameObjects(controller: SceneController) {
   // ambient light
-  let ambientLight = new AmbientLight(0xffffff, 2)
+  let ambientLight = new AmbientLight(0xffffff, 1)
   ambientLight.position.set(0, 0, 0)
   controller.dir.add('ambientLight', { object3D: ambientLight })
 
   // point light
-  let pointLight = new PointLight(0xffffff, 2)
+  let pointLight = new PointLight(0xffffff, 1)
   pointLight.position.set(0, 0, 0)
   controller.dir.add('pointLight', { object3D: pointLight })
 
   // particles
-  const particles = createParticles(5000, './assets/textures/star.png', './assets/textures/star_alpha.png')
-  controller.dir.add('particles', { object3D: particles })
+  // const particles = createParticles(
+  //   5000,
+  //   './assets/textures/star.png',
+  //   './assets/textures/star_alpha.png'
+  // )
+  // controller.dir.add('particles', {
+  //   object3D: particles,
+  //   animation: (delta) => {
+  //     // Position the container in the background relative to the camera's initial position
+  //     particles.position.copy(controller.getCamera().position)
+  //   }
+  // })
+
+  // skybox
+  const skybox = new CubeTextureLoader().load([
+    './assets/textures/skybox/right.jpg',
+    './assets/textures/skybox/left.jpg',
+    './assets/textures/skybox/up.jpg',
+    './assets/textures/skybox/down.jpg',
+    './assets/textures/skybox/front.jpg',
+    './assets/textures/skybox/back.jpg',
+  ])
+  controller.getScene().background = skybox
 
   // load saturn model
   const loader = new GLTFLoader()
@@ -30,7 +52,7 @@ function createGameObjects(controller: SceneController) {
     './assets/models/saturn/saturn.gltf',
     (gltf) => {
       const saturn = gltf.scene
-      saturn.scale.set(0.5, 0.5, 0.5)
+      saturn.scale.set(0.1, 0.1, 0.1)
       saturn.position.set(0, 0, 0)
       controller.dir.add('saturn', { object3D: saturn })
     },
@@ -99,3 +121,4 @@ onMounted(() => {
   left: 0;
 }
 </style>
+@/3d-project/components/sphere_skybox

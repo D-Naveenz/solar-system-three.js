@@ -15,10 +15,10 @@
     }
   },
   "mainCamera": {
-    "fov": 90,
+    "fov": 75,
     "aspect": 1,
     "near": 0.1,
-    "far": 100
+    "far": 1000
   },
   "mainLight": {
     "color": "white",

@@ -1,6 +1,7 @@
-import { BufferAttribute, BufferGeometry, Points, PointsMaterial, TextureLoader } from "three"
+import { BufferAttribute, BufferGeometry, Object3D, Points, PointsMaterial, TextureLoader } from "three"
 
 export function createParticles(count: number, textureUrl: string, alphaUrl: string) {
+  const container = new Object3D(); // Create a container for the particles
   const particleGeometry = new BufferGeometry
   const particleCount = count
 
@@ -21,8 +22,13 @@ export function createParticles(count: number, textureUrl: string, alphaUrl: str
     transparent: true,
     alphaMap: alphaTexture,
     size: 0.15,
-    sizeAttenuation: true // make the particles smaller when they are further away
+    sizeAttenuation: true, // make the particles smaller when they are further away
   })
 
-  return new Points(particleGeometry, particleMaterial)
+  const particles = new Points(particleGeometry, particleMaterial)
+
+  // Position particles in the container
+  container.add(particles);
+
+  return container
 }

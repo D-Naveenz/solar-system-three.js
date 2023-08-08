@@ -5,6 +5,7 @@ import {
   Color,
   WebGLRenderer,
   DirectionalLight,
+  AxesHelper,
 } from 'three'
 import type {
   RendererProperties,
@@ -82,6 +83,9 @@ class SceneController {
       // Perform any custom actions.
       this.onResize()
     })
+
+    const axesHelper = new AxesHelper( 20 );
+    this.scene.add( axesHelper );
   }
 
   private onResize() {
