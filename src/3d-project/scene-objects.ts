@@ -2,10 +2,11 @@ import { AmbientLight, CubeTextureLoader, Plane, PlaneHelper, PointLight, Vector
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { createParticles } from "./components/particles"
 import type { SceneController } from "./scene-controller"
-import { createSaturn } from "./components/saturn"
+// import { createSaturn } from "./components/saturn"
 
 export function createGameObjects(controller: SceneController) {
   const camera = controller.getCamera()
+  const gltfLoader = new GLTFLoader()
 
   // ambient light
   const ambientLight = new AmbientLight(0xffffff, 1)
@@ -68,14 +69,104 @@ export function createGameObjects(controller: SceneController) {
   ])
   controller.getScene().background = skybox
 
+  // load sun model
+  gltfLoader.load(
+    './assets/models/sun/sun.gltf',
+    (gltf) => {
+      const sun = gltf.scene
+      sun.scale.set(0.1, 0.1, 0.1)
+      sun.position.set(0, 0, 0)
+      sun.matrixWorldNeedsUpdate = true
+      controller.dir.add('sun', { object3D: sun })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
+
+  // load mercury model
+  gltfLoader.load(
+    './assets/models/mercury/mercury.gltf',
+    (gltf) => {
+      const mercury = gltf.scene
+      mercury.scale.set(0.1, 0.1, 0.1)
+      //sun.position.set(0, 0, 0)
+      controller.dir.add('mercury', { object3D: mercury })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
+
+  // load venus model
+  gltfLoader.load(
+    './assets/models/venus/venus.gltf',
+    (gltf) => {
+      const venus = gltf.scene
+      venus.scale.set(0.1, 0.1, 0.1)
+      //sun.position.set(0, 0, 0)
+      controller.dir.add('venus', { object3D: venus })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
+
+  // load earth model
+  gltfLoader.load(
+    './assets/models/earth/earth.gltf',
+    (gltf) => {
+      const earth = gltf.scene
+      earth.scale.set(0.1, 0.1, 0.1)
+      //sun.position.set(0, 0, 0)
+      controller.dir.add('earth', { object3D: earth })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
+
+  // load mars model
+  gltfLoader.load(
+    './assets/models/mars/mars.gltf',
+    (gltf) => {
+      const mars = gltf.scene
+      mars.scale.set(0.1, 0.1, 0.1)
+      //sun.position.set(0, 0, 0)
+      controller.dir.add('mars', { object3D: mars })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
+
+  // load jupiter model
+  gltfLoader.load(
+    './assets/models/jupiter/jupiter.gltf',
+    (gltf) => {
+      const jupiter = gltf.scene
+      jupiter.scale.set(0.1, 0.1, 0.1)
+      jupiter.position.set(0, 0, 10)
+      controller.dir.add('jupiter', { object3D: jupiter })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
+  
   // load saturn model
-  const loader = new GLTFLoader()
-  loader.load(
+  gltfLoader.load(
     './assets/models/saturn/saturn.gltf',
     (gltf) => {
       const saturn = gltf.scene
       saturn.scale.set(0.1, 0.1, 0.1)
-      saturn.position.set(0, 0, 0)
+      saturn.position.set(0, 0, 20)
       controller.dir.add('saturn', { object3D: saturn })
     },
     undefined,
@@ -84,9 +175,40 @@ export function createGameObjects(controller: SceneController) {
     }
   )
 
-  const saturn = createSaturn()
-  saturn.position.set(0, 0, -20)
-  saturn.rotation.z = Math.PI / -32
-  saturn.scale.set(0.5, 0.5, 0.5)
-  controller.dir.add('saturn', { object3D: saturn })
+  // load custom saturn model
+  // const saturn = createSaturn()
+  // saturn.position.set(0, 0, -20)
+  // saturn.rotation.z = Math.PI / -32
+  // saturn.scale.set(0.5, 0.5, 0.5)
+  // controller.dir.add('saturn', { object3D: saturn })
+
+  // load uranus model
+  gltfLoader.load(
+    './assets/models/uranus/uranus.gltf',
+    (gltf) => {
+      const uranus = gltf.scene
+      uranus.scale.set(0.1, 0.1, 0.1)
+      //sun.position.set(0, 0, 0)
+      controller.dir.add('uranus', { object3D: uranus })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
+
+  // load neptune model
+  gltfLoader.load(
+    './assets/models/neptune/neptune.gltf',
+    (gltf) => {
+      const neptune = gltf.scene
+      neptune.scale.set(0.1, 0.1, 0.1)
+      //sun.position.set(0, 0, 0)
+      controller.dir.add('neptune', { object3D: neptune })
+    },
+    undefined,
+    (error) => {
+      console.error(error)
+    }
+  )
 }
