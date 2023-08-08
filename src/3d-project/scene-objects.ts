@@ -86,5 +86,7 @@ export function createGameObjects(controller: SceneController) {
 
   const saturn = createSaturn()
   saturn.position.set(0, 0, -20)
+  saturn.rotation.z = Math.PI / -32
+  saturn.scale.set(0.5, 0.5, 0.5)
   controller.dir.add('saturn', { object3D: saturn })
 }

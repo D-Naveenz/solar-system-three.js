@@ -1,5 +1,4 @@
 import {
-  DoubleSide,
   FrontSide,
   Mesh,
   MeshPhongMaterial,
@@ -9,7 +8,6 @@ import {
   SphereGeometry,
   TextureLoader,
   TorusGeometry,
-  Vector3
 } from 'three'
 
 export function createSaturn() {
