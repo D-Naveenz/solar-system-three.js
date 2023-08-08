@@ -159,6 +159,7 @@ class SceneController {
 
   createRenderer(properties?: RendererProperties) {
     const renderer = new WebGLRenderer(properties)
+    renderer.localClippingEnabled = true
 
     return renderer
   }

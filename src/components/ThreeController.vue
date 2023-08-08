@@ -2,15 +2,16 @@
 import { onBeforeMount, onMounted, ref } from 'vue'
 import { SceneController } from '@/3d-project/scene-controller'
 import type { SceneProperties } from '@/3d-project/types/scene-props'
-import { AmbientLight, CubeTextureLoader, PointLight } from 'three'
+import { AmbientLight, CubeTextureLoader, Plane, PlaneHelper, PointLight, Vector3 } from 'three'
 import { createParticles } from '@/3d-project/components/particles'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
-import { createStarrySkybox } from '@/3d-project/components/skybox'
 
 // Data
 const heightCutoff = ref(0)
 
 function createGameObjects(controller: SceneController) {
+  const camera = controller.getCamera()
+
   // ambient light
   let ambientLight = new AmbientLight(0xffffff, 1)
   ambientLight.position.set(0, 0, 0)
@@ -22,18 +23,44 @@ function createGameObjects(controller: SceneController) {
   controller.dir.add('pointLight', { object3D: pointLight })
 
   // particles
-  // const particles = createParticles(
-  //   5000,
-  //   './assets/textures/star.png',
-  //   './assets/textures/star_alpha.png'
-  // )
-  // controller.dir.add('particles', {
-  //   object3D: particles,
-  //   animation: (delta) => {
-  //     // Position the container in the background relative to the camera's initial position
-  //     particles.position.copy(controller.getCamera().position)
-  //   }
-  // })
+  const particles = createParticles(
+    5000,
+    './assets/textures/star.png',
+    './assets/textures/star_alpha.png'
+  )
+
+  // Add the particles to the scene
+  controller.dir.add('particles', {
+    object3D: particles
+  })
+
+  // Define your initial clipping plane
+  const initialNormal = new Vector3(0, 0, -1)
+  const initialConstant = -camera.near * 20
+  const clippingPlane = new Plane(initialNormal, initialConstant)
+
+  // Create a PlaneHelper using the clipping plane and a size
+  const planeHelper = new PlaneHelper(clippingPlane, 10, 0xff0000) // The last argument is the color of the lines
+
+  // Add the PlaneHelper to the scene
+  controller.dir.add('planeHelper', {
+    object3D: planeHelper,
+    animation: () => {
+      // Get the camera's direction vector
+      const cameraDirection = new Vector3()
+      camera.getWorldDirection(cameraDirection)
+
+      // Set the calculated vector as the new normal vector of the plane
+      clippingPlane.normal.copy(cameraDirection)
+
+      // Update the PlaneHelper's rotation to match the camera's rotation
+      planeHelper.rotation.copy(camera.rotation)
+    }
+  })
+
+  // Set up the clipping properties for the particles
+  particles.material.clippingPlanes = [clippingPlane]
+  particles.material.clipIntersection = true
 
   // skybox
   const skybox = new CubeTextureLoader().load([
@@ -42,7 +69,7 @@ function createGameObjects(controller: SceneController) {
     './assets/textures/skybox/up.jpg',
     './assets/textures/skybox/down.jpg',
     './assets/textures/skybox/front.jpg',
-    './assets/textures/skybox/back.jpg',
+    './assets/textures/skybox/back.jpg'
   ])
   controller.getScene().background = skybox
 

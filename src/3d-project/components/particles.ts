@@ -1,7 +1,6 @@
-import { BufferAttribute, BufferGeometry, Object3D, Points, PointsMaterial, TextureLoader } from "three"
+import { BufferAttribute, BufferGeometry, Points, PointsMaterial, TextureLoader } from "three"
 
 export function createParticles(count: number, textureUrl: string, alphaUrl: string) {
-  const container = new Object3D(); // Create a container for the particles
   const particleGeometry = new BufferGeometry
   const particleCount = count
 
@@ -13,6 +12,9 @@ export function createParticles(count: number, textureUrl: string, alphaUrl: str
 
   particleGeometry.setAttribute('position', new BufferAttribute(positions, 3)) // 3 vertices per particle (x, y, z)
 
+  // Compute the bounding sphere for the particle geometry
+  particleGeometry.computeBoundingSphere();
+
   const textureLoader = new TextureLoader()
   const particleTexture = textureLoader.load(textureUrl)
   const alphaTexture = textureLoader.load(alphaUrl)
@@ -21,14 +23,11 @@ export function createParticles(count: number, textureUrl: string, alphaUrl: str
     map: particleTexture,
     transparent: true,
     alphaMap: alphaTexture,
-    size: 0.15,
+    size: 0.2,
     sizeAttenuation: true, // make the particles smaller when they are further away
   })
 
   const particles = new Points(particleGeometry, particleMaterial)
 
-  // Position particles in the container
-  container.add(particles);
-
-  return container
+  return particles
 }
