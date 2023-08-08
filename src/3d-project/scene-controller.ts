@@ -159,7 +159,7 @@ class SceneController {
 
   createRenderer(properties?: RendererProperties) {
     const renderer = new WebGLRenderer(properties)
-    renderer.localClippingEnabled = true
+    renderer.localClippingEnabled = true // enable clipping
 
     return renderer
   }
