@@ -1,7 +1,7 @@
-import { AmbientLight, CubeTextureLoader, Plane, PlaneHelper, PointLight, Vector3 } from "three"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
-import { createParticles } from "./components/particles"
-import type { SceneController } from "./scene-controller"
+import { AmbientLight, CubeTextureLoader, Plane, PlaneHelper, PointLight, Vector3 } from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { createParticles } from './components/particles'
+import type { SceneController } from './scene-controller'
 // import { createSaturn } from "./components/saturn"
 
 export function createGameObjects(controller: SceneController) {
@@ -91,7 +91,7 @@ export function createGameObjects(controller: SceneController) {
     (gltf) => {
       const mercury = gltf.scene
       mercury.scale.set(0.1, 0.1, 0.1)
-      //sun.position.set(0, 0, 0)
+      mercury.position.set(0, 0, 20)
       controller.dir.add('mercury', { object3D: mercury })
     },
     undefined,
@@ -106,7 +106,7 @@ export function createGameObjects(controller: SceneController) {
     (gltf) => {
       const venus = gltf.scene
       venus.scale.set(0.1, 0.1, 0.1)
-      //sun.position.set(0, 0, 0)
+      venus.position.set(0, 0, 21)
       controller.dir.add('venus', { object3D: venus })
     },
     undefined,
@@ -120,8 +120,8 @@ export function createGameObjects(controller: SceneController) {
     './assets/models/earth/earth.gltf',
     (gltf) => {
       const earth = gltf.scene
-      earth.scale.set(0.1, 0.1, 0.1)
-      //sun.position.set(0, 0, 0)
+      earth.scale.set(0.15, 0.15, 0.15)
+      earth.position.set(0, 0, 23)
       controller.dir.add('earth', { object3D: earth })
     },
     undefined,
@@ -135,8 +135,8 @@ export function createGameObjects(controller: SceneController) {
     './assets/models/mars/mars.gltf',
     (gltf) => {
       const mars = gltf.scene
-      mars.scale.set(0.1, 0.1, 0.1)
-      //sun.position.set(0, 0, 0)
+      mars.scale.set(0.2, 0.2, 0.2)
+      mars.position.set(0, 0, 28)
       controller.dir.add('mars', { object3D: mars })
     },
     undefined,
@@ -151,7 +151,7 @@ export function createGameObjects(controller: SceneController) {
     (gltf) => {
       const jupiter = gltf.scene
       jupiter.scale.set(0.1, 0.1, 0.1)
-      jupiter.position.set(0, 0, 10)
+      jupiter.position.set(0, 0, 33)
       controller.dir.add('jupiter', { object3D: jupiter })
     },
     undefined,
@@ -159,14 +159,15 @@ export function createGameObjects(controller: SceneController) {
       console.error(error)
     }
   )
-  
+
   // load saturn model
   gltfLoader.load(
     './assets/models/saturn/saturn.gltf',
     (gltf) => {
       const saturn = gltf.scene
       saturn.scale.set(0.1, 0.1, 0.1)
-      saturn.position.set(0, 0, 20)
+      saturn.position.set(0, 0, 42)
+      saturn.rotation.z = Math.PI / -32
       controller.dir.add('saturn', { object3D: saturn })
     },
     undefined,
@@ -188,7 +189,7 @@ export function createGameObjects(controller: SceneController) {
     (gltf) => {
       const uranus = gltf.scene
       uranus.scale.set(0.1, 0.1, 0.1)
-      //sun.position.set(0, 0, 0)
+      uranus.position.set(0, 0, 50)
       controller.dir.add('uranus', { object3D: uranus })
     },
     undefined,
@@ -203,7 +204,7 @@ export function createGameObjects(controller: SceneController) {
     (gltf) => {
       const neptune = gltf.scene
       neptune.scale.set(0.1, 0.1, 0.1)
-      //sun.position.set(0, 0, 0)
+      neptune.position.set(0, 0, 60)
       controller.dir.add('neptune', { object3D: neptune })
     },
     undefined,
@@ -211,4 +212,50 @@ export function createGameObjects(controller: SceneController) {
       console.error(error)
     }
   )
+
+  // Create a planetOrbit object to store orbit information
+  const planetOrbit = {
+    mercury: { radius: 20, speed: 0.01 },
+    venus: { radius: 21, speed: 0.008 },
+    earth: { radius: 23, speed: 0.006 },
+    mars: { radius: 28, speed: 0.004 },
+    jupiter: { radius: 33, speed: 0.002 },
+    saturn: { radius: 42, speed: 0.001 },
+    uranus: { radius: 50, speed: 0.0008 },
+    neptune: { radius: 60, speed: 0.0006 }
+  }
+
+  controller.animationLoop.addAnimation(() => {
+    // Update planet positions and rotations
+    const time = Date.now() * 0.001 // Convert to seconds
+
+    for (const planetName in planetOrbit) {
+      if (controller.dir.has(planetName)) {
+        const planetObject = controller.dir.get(planetName).object3D
+        const { radius, speed } = planetOrbit[planetName]
+
+        // Calculate new position based on orbit
+        const posX = radius * Math.cos(time * speed)
+        const posZ = radius * Math.sin(time * speed)
+
+        // Update planet position
+        planetObject.position.set(posX, 0, posZ)
+
+        // Rotate planet around its own axis
+        if (planetName === 'saturn') {
+          // Get the local axis vectors
+          const saturnUp = new Vector3()
+          const saturnRight = new Vector3()
+          const saturnForward = new Vector3()
+
+          planetObject.matrixWorld.extractBasis(saturnRight, saturnUp, saturnForward);
+          // Adjust the rotation speed and axis as needed
+          planetObject.rotateOnAxis(saturnUp, 0.005) // Adjust the rotation speed as needed
+        } else {
+          // Rotate other planets around its own axis
+          planetObject.rotation.y += 0.005 // Adjust the rotation speed as needed
+        }
+      }
+    }
+  })
 }

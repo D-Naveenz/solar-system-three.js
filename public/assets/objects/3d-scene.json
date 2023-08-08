@@ -8,8 +8,8 @@
         "dampingFactor": 0.05
       },
       "distance": {
-        "min": 0.1,
-        "max": 1000,
+        "min": 2,
+        "max": 500,
         "polarAngleDevisor": 2
       }
     }
@@ -18,7 +18,9 @@
     "fov": 75,
     "aspect": 1,
     "near": 0.1,
-    "far": 1000
+    "far": 1000,
+    "position": { "x": 0, "y": 10, "z": -20 },
+    "lookAt": { "x": 0, "y": 0, "z": 0 }
   },
   "mainLight": {
     "color": "white",

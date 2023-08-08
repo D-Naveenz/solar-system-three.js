@@ -35,4 +35,8 @@ export class ObjectDirectory {
     // Remove the object from the scene
     delete this.objects[key]
   }
+
+  has(key: string) {
+    return this.objects[key] !== undefined
+  }
 }
