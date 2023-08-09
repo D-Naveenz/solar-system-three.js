@@ -5,6 +5,8 @@ import {
   Color,
   WebGLRenderer,
   DirectionalLight,
+  AxesHelper,
+  CineonToneMapping,
 } from 'three'
 import type {
   RendererProperties,
@@ -15,21 +17,24 @@ import { createCamera } from './core/camera'
 import { createControls } from './core/controls'
 import { ObjectDirectory } from './core/object-dir'
 import { createLight } from './core/light'
+import { createComposer } from './core/effect-composer'
+import { addBloom } from './post-processing/bloom'
+import { addSMAA } from './post-processing/smaa'
+import type { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 
 class SceneController {
   private scene: Scene
   private renderer: WebGLRenderer
+  private composer: EffectComposer
 
   active_camera: PerspectiveCamera
   animationLoop: AnimationLoop
   dir: ObjectDirectory
   sizeDefenition: () => { width: number; height: number }
 
-  constructor(properties?: SceneProperties) {
+  constructor(size: () => { width: number; height: number }, properties?: SceneProperties) {
     // Initialize properties
-    this.sizeDefenition = () => {
-      return { width: window.innerWidth, height: window.innerHeight }
-    }
+    this.sizeDefenition = size
 
     // Load properties
     let props: SceneProperties
@@ -46,8 +51,26 @@ class SceneController {
     // Create the renderer
     this.renderer = this.createRenderer(props.renderer)
 
+    // Create the composer for post processing
+    this.composer = createComposer(this.scene, this.active_camera, this.renderer)
+
+    // check if post processing is enabled
+    if (props.postProcessing) {
+      // Add post processing effects
+      if (props.postProcessing.bloom) {
+        // Add bloom effect
+        addBloom(this.composer, this.sizeDefenition(), props.postProcessing.bloom)
+
+        this.renderer.toneMapping = CineonToneMapping
+        this.renderer.toneMappingExposure = 0.9
+      }
+    }
+
+    // Adding ssmaa antialiasing
+    addSMAA(this.composer, this.sizeDefenition())
+
     // Create the animation loop
-    this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
+    this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer, this.composer)
 
     if (props.controls.orbitControls) {
       // Add orbit controls
@@ -69,9 +92,9 @@ class SceneController {
 
     if (props.mainLight) {
       // Create the main light
-      const main_light = createLight(props.mainLight).light
-      this.dir.add('main_light', { object3D: main_light }) // Add the main light to the directory
-      // this.scene.add(main_light)
+      const main_light = createLight(props.mainLight)
+      this.dir.add('main_light', { object3D: main_light.light }) // Add the main light to the directory
+      this.dir.add('main_light_helper', { object3D: main_light.lightHelper }, false) // Add the main light helper to the directory
     }
 
     // Setup the resizer
@@ -82,6 +105,9 @@ class SceneController {
       // Perform any custom actions.
       this.onResize()
     })
+
+    const axesHelper = new AxesHelper( 20 );
+    this.scene.add( axesHelper );
   }
 
   private onResize() {
@@ -155,6 +181,7 @@ class SceneController {
 
   createRenderer(properties?: RendererProperties) {
     const renderer = new WebGLRenderer(properties)
+    renderer.localClippingEnabled = true // enable clipping
 
     return renderer
   }
@@ -172,6 +199,7 @@ class SceneController {
     this.active_camera.updateProjectionMatrix()
     // todo: add a comment here
     this.renderer.setSize(canvasSize.width, canvasSize.height)
+    this.composer.setSize(canvasSize.width, canvasSize.height)
     this.renderer.setPixelRatio(window.devicePixelRatio)
   }
 

@@ -1,31 +1,37 @@
 import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import type { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 
-const clock = new Clock()
+// const clock = new Clock()
 
 class AnimationLoop {
   private camera: PerspectiveCamera
   private scene: Scene
   private renderer: WebGLRenderer
+  private composer?: EffectComposer
 
-  animations: ((delta: number) => void)[]
+  animations: (() => void)[]
 
-  constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer) {
+  constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer, composer?: EffectComposer) {
     this.camera = camera
     this.scene = scene
     this.renderer = renderer
+    this.composer = composer
     this.animations = []
   }
 
   start() {
     this.renderer.setAnimationLoop(() => {
       // Update objects using the delta time once per frame
-      const delta = clock.getDelta()
+      // const delta = clock.getDelta()
+
+      // process all loop animations
       for (const animation of this.animations) {
-        animation(delta)
+        animation()
       }
       
       // Draw a single frame
-      this.renderer.render(this.scene, this.camera)
+      if (this.composer) this.composer.render()
+      else this.renderer.render(this.scene, this.camera)
     })
   }
 
@@ -33,11 +39,22 @@ class AnimationLoop {
     this.renderer.setAnimationLoop(null)
   }
 
-  addAnimation(animation: (delta: number) => void) {
+  addAnimation(animation: () => void) {
     this.animations.push(animation)
   }
 
-  removeAnimation(animation?: (delta: number) => void) {
+  addDisposableAnimation(animation: () => boolean) {
+    const disposableAnimation = () => {
+      // if animation returns false, remove it from the loop
+      if (!animation()) {
+        this.removeAnimation(disposableAnimation)
+      }
+    }
+
+    this.animations.push(disposableAnimation) 
+  }
+
+  removeAnimation(animation?: () => void) {
     if (!animation) return
     
     const index = this.animations.indexOf(animation)

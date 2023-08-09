@@ -16,6 +16,13 @@ interface SceneProperties {
   }
   mainCamera: CameraProperties
   mainLight?: LightProperties
+  postProcessing?: {
+    bloom?: {
+      strength: number
+      radius: number
+      threshold: number
+    }
+  }
 }
 
 export type { SceneProperties }

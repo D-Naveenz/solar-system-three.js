@@ -12,6 +12,9 @@ export function createParticles(count: number, textureUrl: string, alphaUrl: str
 
   particleGeometry.setAttribute('position', new BufferAttribute(positions, 3)) // 3 vertices per particle (x, y, z)
 
+  // Compute the bounding sphere for the particle geometry
+  particleGeometry.computeBoundingSphere();
+
   const textureLoader = new TextureLoader()
   const particleTexture = textureLoader.load(textureUrl)
   const alphaTexture = textureLoader.load(alphaUrl)
@@ -20,9 +23,11 @@ export function createParticles(count: number, textureUrl: string, alphaUrl: str
     map: particleTexture,
     transparent: true,
     alphaMap: alphaTexture,
-    size: 0.15,
-    sizeAttenuation: true // make the particles smaller when they are further away
+    size: 0.2,
+    sizeAttenuation: true, // make the particles smaller when they are further away
   })
 
-  return new Points(particleGeometry, particleMaterial)
+  const particles = new Points(particleGeometry, particleMaterial)
+
+  return particles
 }
