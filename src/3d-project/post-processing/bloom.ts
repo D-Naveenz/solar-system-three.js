@@ -10,7 +10,7 @@ export function addBloom(
   resolution: { width: number; height: number },
   properties: BloomProperties
 ) {
-  console.log('Adding bloom effect! pixelRatio: ' + pixelRatio + ' resolution: ' + resolution.width + 'x' + resolution.height + '')
+  console.log('Adding post-processing effect: Bloom')
   
   const bloomPass = new UnrealBloomPass(
     new Vector2(resolution.width * pixelRatio, resolution.height * pixelRatio),

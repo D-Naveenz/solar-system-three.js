@@ -24,13 +24,13 @@
   },
   "mainLight": {
     "color": "white",
-    "intensity": 4,
+    "intensity": 2,
     "size": 0,
     "position": { "x": 0, "y": 5, "z": 15 }
   },
   "postProcessing": {
     "bloom": {
-      "strength": 1.5,
+      "strength": 0.5,
       "radius": 0.1,
       "threshold": 0
     }

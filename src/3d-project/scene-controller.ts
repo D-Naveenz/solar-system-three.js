@@ -19,6 +19,7 @@ import { ObjectDirectory } from './core/object-dir'
 import { createLight } from './core/light'
 import { createComposer } from './core/effect-composer'
 import { addBloom } from './post-processing/bloom'
+import { addSMAA } from './post-processing/smaa'
 
 class SceneController {
   private scene: Scene
@@ -49,7 +50,7 @@ class SceneController {
     this.renderer = this.createRenderer(props.renderer)
 
     // Create the composer for post processing
-    const composer = createComposer(this.scene, this.active_camera, this.renderer)
+    const composer = createComposer(this.scene, this.active_camera, this.renderer, this.sizeDefenition)
 
     // check if post processing is enabled
     if (props.postProcessing) {
@@ -62,6 +63,9 @@ class SceneController {
         this.renderer.toneMappingExposure = 0.9
       }
     }
+
+    // Adding ssmaa antialiasing
+    addSMAA(composer, this.sizeDefenition)
 
     // Create the animation loop
     this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer, composer)
