@@ -21,19 +21,16 @@ onMounted(() => {
     })
     .then((props: SceneProperties) => {
       // Create an instance of 3D scene
-      const world = new SceneController(props)
+      const world = new SceneController({
+          width: window.innerWidth,
+          height: window.innerHeight - heightCutoff.value
+        }, props)
+
       // Start the animation loop
       world.animationLoop.start()
 
       // Create the game objects
       createGameObjects(world)
-
-      world.sizeDefenition = () => {
-        return {
-          width: window.innerWidth,
-          height: window.innerHeight - heightCutoff.value
-        }
-      }
 
       // bind the canvas to the component
       const mountedComponent = document.querySelector('#world-component')

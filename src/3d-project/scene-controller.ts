@@ -6,6 +6,7 @@ import {
   WebGLRenderer,
   DirectionalLight,
   AxesHelper,
+  CineonToneMapping,
 } from 'three'
 import type {
   RendererProperties,
@@ -16,6 +17,8 @@ import { createCamera } from './core/camera'
 import { createControls } from './core/controls'
 import { ObjectDirectory } from './core/object-dir'
 import { createLight } from './core/light'
+import { createComposer } from './core/effect-composer'
+import { addBloom } from './post-processing/bloom'
 
 class SceneController {
   private scene: Scene
@@ -24,13 +27,11 @@ class SceneController {
   active_camera: PerspectiveCamera
   animationLoop: AnimationLoop
   dir: ObjectDirectory
-  sizeDefenition: () => { width: number; height: number }
+  sizeDefenition: { width: number; height: number }
 
-  constructor(properties?: SceneProperties) {
+  constructor(size: { width: number; height: number }, properties?: SceneProperties) {
     // Initialize properties
-    this.sizeDefenition = () => {
-      return { width: window.innerWidth, height: window.innerHeight }
-    }
+    this.sizeDefenition = size
 
     // Load properties
     let props: SceneProperties
@@ -47,8 +48,23 @@ class SceneController {
     // Create the renderer
     this.renderer = this.createRenderer(props.renderer)
 
+    // Create the composer for post processing
+    const composer = createComposer(this.scene, this.active_camera, this.renderer)
+
+    // check if post processing is enabled
+    if (props.postProcessing) {
+      // Add post processing effects
+      if (props.postProcessing.bloom) {
+        // Add bloom effect
+        addBloom(composer, this.sizeDefenition, props.postProcessing.bloom)
+
+        this.renderer.toneMapping = CineonToneMapping
+        this.renderer.toneMappingExposure = 0.9
+      }
+    }
+
     // Create the animation loop
-    this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer)
+    this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer, composer)
 
     if (props.controls.orbitControls) {
       // Add orbit controls
@@ -171,7 +187,7 @@ class SceneController {
   }
 
   adjustSize() {
-    const canvasSize = this.sizeDefenition()
+    const canvasSize = this.sizeDefenition
     // changes the camera aspect ratio when the function is called
     this.active_camera.aspect = canvasSize.width / canvasSize.height
     this.active_camera.updateProjectionMatrix()
