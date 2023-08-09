@@ -23,7 +23,7 @@ export function createParticles(count: number, textureUrl: string, alphaUrl: str
     map: particleTexture,
     transparent: true,
     alphaMap: alphaTexture,
-    size: 0.2,
+    size: 0.25,
     sizeAttenuation: true, // make the particles smaller when they are further away
   })
 

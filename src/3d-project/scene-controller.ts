@@ -113,8 +113,8 @@ class SceneController {
     })
 
     // Helper for showing the axes
-    const axesHelper = new AxesHelper( 20 );
-    this.scene.add( axesHelper );
+    // const axesHelper = new AxesHelper( 20 );
+    // this.scene.add( axesHelper );
 
     // Add stats to the animation loop
     this.animationLoop.addAnimation(() => {

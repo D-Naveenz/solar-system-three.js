@@ -48,9 +48,9 @@ export function createGameObjects(controller: SceneController, gui: GUI) {
   const clippingPlane = new Plane(initialNormal, initialConstant)
 
   // Create a PlaneHelper using the clipping plane and a size
-  const planeHelper = new PlaneHelper(clippingPlane, 100, 0xff0000) // The last argument is the color of the lines
+  const planeHelper = new PlaneHelper(clippingPlane, 5, 0xff0000) // The last argument is the color of the lines
 
-  // Add the PlaneHelper to the scene
+  // // Add the PlaneHelper to the scene
   controller.dir.add('planeHelper', {
     object3D: planeHelper,
     animation: () => {
@@ -66,6 +66,10 @@ export function createGameObjects(controller: SceneController, gui: GUI) {
     }
   })
 
+  // // Set up the clipping properties for the particles
+  particles.material.clippingPlanes = [clippingPlane]
+  particles.material.clipIntersection = true
+
   // const myObject = {
   //   myBoolean: true,
   //   myFunction: function () {},
@@ -77,10 +81,6 @@ export function createGameObjects(controller: SceneController, gui: GUI) {
   // gui.add(myObject, 'myFunction') // Button
   // gui.add(myObject, 'myString') // Text Field
   // gui.add(myObject, 'myNumber') // Number Field
-
-  // Set up the clipping properties for the particles
-  particles.material.clippingPlanes = [clippingPlane]
-  particles.material.clipIntersection = true
 
   // skybox
   const skybox = new CubeTextureLoader().load([
