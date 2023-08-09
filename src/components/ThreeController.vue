@@ -21,10 +21,12 @@ onMounted(() => {
     })
     .then((props: SceneProperties) => {
       // Create an instance of 3D scene
-      const world = new SceneController({
+      const world = new SceneController(() => {
+        return {
           width: window.innerWidth,
           height: window.innerHeight - heightCutoff.value
-        }, props)
+        }
+      }, props)
 
       // Start the animation loop
       world.animationLoop.start()
