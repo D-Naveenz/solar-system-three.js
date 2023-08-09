@@ -13,9 +13,10 @@ import { createParticles } from './components/particles'
 import type { SceneController } from './scene-controller'
 import type { Object3D } from 'three/src/Three.js'
 import { moveCameraAnimation } from './core/camera'
+import type GUI from 'lil-gui'
 // import { createSaturn } from "./components/saturn"
 
-export function createGameObjects(controller: SceneController) {
+export function createGameObjects(controller: SceneController, gui: GUI) {
   const camera = controller.getCamera()
   const gltfLoader = new GLTFLoader()
 
@@ -30,16 +31,16 @@ export function createGameObjects(controller: SceneController) {
   controller.dir.add('pointLight', { object3D: pointLight })
 
   // particles
-  // const particles = createParticles(
-  //   5000,
-  //   './assets/textures/star.png',
-  //   './assets/textures/star_alpha.png'
-  // )
+  const particles = createParticles(
+    5000,
+    './assets/textures/star.png',
+    './assets/textures/star_alpha.png'
+  )
 
-  // // Add the particles to the scene
-  // controller.dir.add('particles', {
-  //   object3D: particles
-  // })
+  // Add the particles to the scene
+  controller.dir.add('particles', {
+    object3D: particles
+  })
 
   // Define your initial clipping plane
   const initialNormal = new Vector3(0, 0, -1)
@@ -47,7 +48,7 @@ export function createGameObjects(controller: SceneController) {
   const clippingPlane = new Plane(initialNormal, initialConstant)
 
   // Create a PlaneHelper using the clipping plane and a size
-  const planeHelper = new PlaneHelper(clippingPlane, 10, 0xff0000) // The last argument is the color of the lines
+  const planeHelper = new PlaneHelper(clippingPlane, 100, 0xff0000) // The last argument is the color of the lines
 
   // Add the PlaneHelper to the scene
   controller.dir.add('planeHelper', {
@@ -65,9 +66,21 @@ export function createGameObjects(controller: SceneController) {
     }
   })
 
+  // const myObject = {
+  //   myBoolean: true,
+  //   myFunction: function () {},
+  //   myString: 'lil-gui',
+  //   myNumber: 1
+  // }
+
+  // gui.add(myObject, 'myBoolean') // Checkbox
+  // gui.add(myObject, 'myFunction') // Button
+  // gui.add(myObject, 'myString') // Text Field
+  // gui.add(myObject, 'myNumber') // Number Field
+
   // Set up the clipping properties for the particles
-  // particles.material.clippingPlanes = [clippingPlane]
-  // particles.material.clipIntersection = true
+  particles.material.clippingPlanes = [clippingPlane]
+  particles.material.clipIntersection = true
 
   // skybox
   const skybox = new CubeTextureLoader().load([
@@ -306,7 +319,6 @@ export function createGameObjects(controller: SceneController) {
     const mouse = new Vector2()
     mouse.x = (event.clientX / canvas.clientWidth) * 2 - 1
     mouse.y = -(event.clientY / canvas.clientHeight) * 2 + 1
-    
 
     // update the picking ray with the camera and mouse position
     const raycaster = new Raycaster()
@@ -320,7 +332,7 @@ export function createGameObjects(controller: SceneController) {
       const planetName = getPlanetName(clickedObj)
 
       if (planetName) {
-        console.log("planet selected: ", planetName)
+        console.log('planet selected: ', planetName)
         // move camera closer and look the clicked object
         const planet = controller.dir.get(planetName).object3D
         const distance = 10
@@ -332,7 +344,9 @@ export function createGameObjects(controller: SceneController) {
         // set camera position and look at the clicked object
         // camera.position.copy(cameraPosition)
         const timer = Date.now()
-        controller.animationLoop.addDisposableAnimation(() => moveCameraAnimation(camera, timer, 2.0, camera.position, cameraPosition))
+        controller.animationLoop.addDisposableAnimation(() =>
+          moveCameraAnimation(camera, timer, 2.0, camera.position, cameraPosition)
+        )
         camera.lookAt(targetPosition)
 
         // break the loop after handling the click
