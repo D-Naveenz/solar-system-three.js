@@ -1,19 +1,15 @@
-import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { Clock, WebGLRenderer } from 'three'
 import type { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 
 // const clock = new Clock()
 
 class AnimationLoop {
-  private camera: PerspectiveCamera
-  private scene: Scene
   private renderer: WebGLRenderer
-  private composer?: EffectComposer
+  private composer: EffectComposer
 
   animations: (() => void)[]
 
-  constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer, composer?: EffectComposer) {
-    this.camera = camera
-    this.scene = scene
+  constructor(renderer: WebGLRenderer, composer: EffectComposer) {
     this.renderer = renderer
     this.composer = composer
     this.animations = []
@@ -30,8 +26,7 @@ class AnimationLoop {
       }
       
       // Draw a single frame
-      if (this.composer) this.composer.render()
-      else this.renderer.render(this.scene, this.camera)
+      this.composer.render()
     })
   }
 

@@ -30,8 +30,8 @@
   },
   "postProcessing": {
     "bloom": {
-      "strength": 0.5,
-      "radius": 0.1,
+      "strength": 0.2,
+      "radius": 0.4,
       "threshold": 0
     }
   }

@@ -52,7 +52,6 @@ function moveCameraAnimation(camera: PerspectiveCamera, startTime: number, durat
   const distanceToTarget = camera.position.distanceTo(targetPosition);
   if (distanceToTarget < 0.01) {
     camera.position.copy(targetPosition); // Set the final position
-    console.log('Camera reached the target position');
     return false; // Animation finished, remove it from the loop
   }
 

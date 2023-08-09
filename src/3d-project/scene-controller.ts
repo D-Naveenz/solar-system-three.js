@@ -21,6 +21,8 @@ import { createComposer } from './core/effect-composer'
 import { addBloom } from './post-processing/bloom'
 import { addSMAA } from './post-processing/smaa'
 import type { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import Stats from 'three/addons/libs/stats.module.js'
+import GUI from 'lil-gui'
 
 class SceneController {
   private scene: Scene
@@ -31,10 +33,14 @@ class SceneController {
   animationLoop: AnimationLoop
   dir: ObjectDirectory
   sizeDefenition: () => { width: number; height: number }
+  stats?: Stats
+  gui?: GUI
 
-  constructor(size: () => { width: number; height: number }, properties?: SceneProperties) {
+  constructor(size: () => { width: number; height: number }, properties?: SceneProperties, stats?: Stats, gui?: GUI) {
     // Initialize properties
     this.sizeDefenition = size
+    this.stats = stats
+    this.gui = gui
 
     // Load properties
     let props: SceneProperties
@@ -70,7 +76,7 @@ class SceneController {
     addSMAA(this.composer, this.sizeDefenition())
 
     // Create the animation loop
-    this.animationLoop = new AnimationLoop(this.active_camera, this.scene, this.renderer, this.composer)
+    this.animationLoop = new AnimationLoop(this.renderer, this.composer)
 
     if (props.controls.orbitControls) {
       // Add orbit controls
@@ -106,8 +112,15 @@ class SceneController {
       this.onResize()
     })
 
-    const axesHelper = new AxesHelper( 20 );
-    this.scene.add( axesHelper );
+    // Helper for showing the axes
+    // const axesHelper = new AxesHelper( 20 );
+    // this.scene.add( axesHelper );
+
+    // Add stats to the animation loop
+    this.animationLoop.addAnimation(() => {
+      if (this.stats)
+      this.stats.update()
+    })
   }
 
   private onResize() {
@@ -205,7 +218,7 @@ class SceneController {
 
   render() {
     // Draw a single frame
-    this.renderer.render(this.scene, this.active_camera)
+    this.composer.render()
   }
 }
 
