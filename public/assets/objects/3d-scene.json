@@ -9,7 +9,7 @@
       },
       "distance": {
         "min": 2,
-        "max": 500,
+        "max": 5000,
         "polarAngleDevisor": 2
       }
     }

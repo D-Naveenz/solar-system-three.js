@@ -33,7 +33,7 @@ class AnimationLoop {
     this.renderer.setAnimationLoop(null)
   }
 
-  addAnimation(animation: (delta?: number) => void) {
+  addAnimation(animation: (delta: number) => void) {
     this.animations.push(animation)
   }
 
