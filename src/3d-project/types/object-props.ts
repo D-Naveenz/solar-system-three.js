@@ -53,7 +53,7 @@ interface LightObject {
 
 interface SceneObject {
   object3D: any
-  animation?: (delta: number) => void
+  animation?: () => void
 }
 
 export type {

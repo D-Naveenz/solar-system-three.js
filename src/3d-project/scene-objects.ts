@@ -12,6 +12,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { createParticles } from './components/particles'
 import type { SceneController } from './scene-controller'
 import type { Object3D } from 'three/src/Three.js'
+import { moveCameraAnimation } from './core/camera'
 // import { createSaturn } from "./components/saturn"
 
 export function createGameObjects(controller: SceneController) {
@@ -329,7 +330,9 @@ export function createGameObjects(controller: SceneController) {
         const cameraPosition = targetPosition.clone().add(new Vector3(0, 0, distance))
 
         // set camera position and look at the clicked object
-        camera.position.copy(cameraPosition)
+        // camera.position.copy(cameraPosition)
+        const timer = Date.now()
+        controller.animationLoop.addDisposableAnimation(() => moveCameraAnimation(camera, timer, 2.0, camera.position, cameraPosition))
         camera.lookAt(targetPosition)
 
         // break the loop after handling the click

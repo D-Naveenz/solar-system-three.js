@@ -1,13 +1,13 @@
 import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
-const clock = new Clock()
+// const clock = new Clock()
 
 class AnimationLoop {
   private camera: PerspectiveCamera
   private scene: Scene
   private renderer: WebGLRenderer
 
-  animations: ((delta: number) => void)[]
+  animations: (() => void)[]
 
   constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer) {
     this.camera = camera
@@ -19,9 +19,11 @@ class AnimationLoop {
   start() {
     this.renderer.setAnimationLoop(() => {
       // Update objects using the delta time once per frame
-      const delta = clock.getDelta()
+      // const delta = clock.getDelta()
+
+      // process all loop animations
       for (const animation of this.animations) {
-        animation(delta)
+        animation()
       }
       
       // Draw a single frame
@@ -33,11 +35,22 @@ class AnimationLoop {
     this.renderer.setAnimationLoop(null)
   }
 
-  addAnimation(animation: (delta: number) => void) {
+  addAnimation(animation: () => void) {
     this.animations.push(animation)
   }
 
-  removeAnimation(animation?: (delta: number) => void) {
+  addDisposableAnimation(animation: () => boolean) {
+    const disposableAnimation = () => {
+      // if animation returns false, remove it from the loop
+      if (!animation()) {
+        this.removeAnimation(disposableAnimation)
+      }
+    }
+
+    this.animations.push(disposableAnimation) 
+  }
+
+  removeAnimation(animation?: () => void) {
     if (!animation) return
     
     const index = this.animations.indexOf(animation)
